@@ -1076,7 +1076,7 @@
       is_loading = ko.utils.unwrapObservable(valueAccessor());
       if (is_loading) {
         if ($(element).children('.loading-overlay').length === 0) {
-          return $(element).prepend("<div class='loading-overlay'><img src='" + AssetsLibrary['spinner'] + "'/></div>");
+          return $(element).prepend("<div class='loading-overlay'><img src='" + AssetsLibrary['overlay-spinner'] + "'/></div>");
         }
       } else {
         return $(element).children('.loading-overlay').fadeOut('fast', (function() {
