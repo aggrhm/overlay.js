@@ -3,7 +3,6 @@ require "fileutils"
 require "pathname"
 require "sprockets"
 require "sprockets-sass"
-require "uglifier"
 
 ROOT        = Pathname(File.dirname(__FILE__))
 LOGGER      = Logger.new(STDOUT)
