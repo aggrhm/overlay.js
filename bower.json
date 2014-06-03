@@ -1,0 +1,10 @@
+{
+  "name": "overlay",
+  "version": "1.0.0",
+  "main": [
+    "./dist/css/overlay.css",
+    "./dist/js/overlay.js",
+    "./dist/img/spinner.gif",
+    "./dist/img/notify.png"
+  ]
+}
