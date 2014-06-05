@@ -4,4 +4,4 @@ A Javascript library for rendering modals, popovers, etc.
 
 ## Dependencies
 
-* Twitter Bootstrap - 2.3.2
+* Twitter Bootstrap > v3.0.0
