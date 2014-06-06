@@ -88,8 +88,8 @@
     opts.position = opts.position || 'right';
     type = type || 'info';
     Overlay.clearNotifications();
-    $('body').prepend("<div id='qs-notify' class='qs-notify-elegant " + type + " p-" + opts.position + "' style='display: none;'><img class='icon' src='" + AssetsLibrary['overlay-notify'] + "'/><div class='title'>" + msg + "</div></div>");
-    $notif = $('#qs-notify');
+    $('body').prepend("<div id='overlay-notify' class='overlay-notify-elegant " + type + " p-" + opts.position + "' style='display: none;'><img class='icon' src='" + AssetsLibrary['overlay-notify'] + "'/><div class='title'>" + msg + "</div></div>");
+    $notif = $('#overlay-notify');
     if ((opts.css != null)) {
       $notif.addClass(opts.css);
     }
@@ -102,7 +102,7 @@
 
   Overlay.clearNotifications = function() {
     clearTimeout(Overlay.instance.notifyTimeout);
-    return $('#qs-notify').remove();
+    return $('#overlay-notify').remove();
   };
 
   Overlay.confirm = function(msg, opts) {
@@ -110,20 +110,20 @@
     vm = {
       message: msg,
       yes: function() {
-        $('#qs-overlay-confirm').modal('hide');
+        $('#overlay-confirm').modal('hide');
         if (opts.yes != null) {
           return opts.yes();
         }
       },
       no: function() {
-        $('#qs-overlay-confirm').modal('hide');
+        $('#overlay-confirm').modal('hide');
         if (opts.no != null) {
           return opts.no();
         }
       }
     };
-    tmp = "<div id='qs-overlay-confirm' class='modal fade'><div class='modal-dialog'><div class='modal-content'><div class='modal-header'><h4>Continue?</h4></div><div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div><div class='modal-footer'><button class='btn btn-danger' data-bind='click : no'>No</button><button class='btn btn-success' data-bind='click : yes'>Yes</button></div></div></div></div>";
-    $modal = $('#qs-overlay-confirm');
+    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title'>Continue?</h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-danger' data-bind='click : no'>No</button><button class='btn btn-success' data-bind='click : yes'>Yes</button></div> </div> </div> </div>";
+    $modal = $('#overlay-confirm');
     if ($modal.length === 0) {
       $modal = $(tmp);
       $modal.appendTo('body');
@@ -144,14 +144,14 @@
     vm = {
       message: msg,
       ok: function() {
-        $('#qs-overlay-alert').modal('hide');
+        $('#overlay-alert').modal('hide');
         if (opts.ok != null) {
           return opts.ok();
         }
       }
     };
-    tmp = "<div id='qs-overlay-alert' class='modal fade'><div class='modal-header'><h4>Alert!</h4></div><div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div><div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div></div>";
-    $modal = $('#qs-overlay-alert');
+    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title'>Alert!</h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
+    $modal = $('#overlay-alert');
     if ($modal.length === 0) {
       $modal = $(tmp);
       $modal.appendTo('body');
