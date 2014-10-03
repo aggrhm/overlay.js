@@ -1,23 +1,32 @@
 ## QuickScript Extensions
 
-View::showAsOverlay = (tmp, opts, cls)->
-		Overlay.add(this, tmp, opts, cls)
+View::showAsOverlay = (tmp, opts)->
+	opts ||= {}
+	opts.view = this
+	opts.template = tmp
+	Overlay.modal(opts)
 View::showAsPopover = (el, tmp, opts)->
-		Overlay.popover(el, this, tmp, opts)
+	opts ||= {}
+	opts.view = this
+	opts.template = tmp
+	Overlay.popover(el, opts)
+View::repositionPopover = ->
+	Overlay.repositionPopover( @name )
 View::hideOverlay = ->
-		Overlay.remove(@name)
+	Overlay.remove(@name)
 View::hidePopover = ->
-		Overlay.removePopover(@name)
+	Overlay.removePopover(@name)
 View::overlayVisible = ->
-		Overlay.isVisible(@name)
+	Overlay.isVisible(@name)
 
 
 # popover : {template : <tmp>, placement : <pos>}
 ko.bindingHandlers.popover =
 	init : (element, valueAccessor, bindingsAccessor, viewModel) ->
 		opts = valueAccessor()
+		opts.view ||= viewModel
 		$(element).click ->
-			Overlay.popover element, viewModel, opts.template, opts
+			Overlay.popover element, opts
 	
 
 ko.bindingHandlers.loadingOverlay =

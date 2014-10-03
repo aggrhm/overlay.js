@@ -7,11 +7,12 @@ Modal.prototype.show = (_relatedTarget)->
 	self = this
 	this.basic_show(_relatedTarget)
 	# update z-index
-	idx = $('.modal.in').length
+	idx = $('.modal.in, .popover').length
+	idx = Overlay.utils.availableZIndex()
 	if this.$backdrop?
 		this.$backdrop.addClass(this.options.className) if this.options.className?
-		this.$backdrop.css('z-index', 1030 + (10 * idx))
-	this.$element.css('z-index', 1040 + (10 * idx))
+		this.$backdrop.css('z-index', idx - 1)
+	this.$element.css('z-index', idx)
 
 	if this.options.attentionAnimation?
 		anim = this.options.attentionAnimation

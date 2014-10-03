@@ -18,9 +18,10 @@
     return this.remove('dialog');
   };
 
-  Overlay.add = function(vm, tmp, opts) {
-    var $modal_dialog, $modal_el, cls, css_opts, id, modal_tpl, template;
-    opts || (opts = {});
+  Overlay.modal = function(opts) {
+    var $modal_dialog, $modal_el, cls, css_opts, id, modal_tpl, template, tmp, vm;
+    vm = opts.view;
+    tmp = opts.template;
     css_opts = opts.style || {};
     cls = opts.className || '';
     id = vm.name;
@@ -29,9 +30,11 @@
     modal_tpl = "<div id='overlay-" + id + "' class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>&times;</button><div class='" + template + "' data-bind=\"template: '" + template + "'\"></div></div></div></div>";
     $modal_el = $(modal_tpl).appendTo('body');
     $modal_dialog = $modal_el.find('.modal-dialog');
-    $modal_dialog.css({
-      width: opts.width + 'px'
-    });
+    if (opts.width != null) {
+      $modal_dialog.css({
+        width: opts.width + 'px'
+      });
+    }
     $modal_dialog.css(css_opts);
     $modal_el.addClass(cls);
     return setTimeout(function() {
@@ -76,7 +79,9 @@
       no: opts.no,
       cancel: Overlay.remove('dialog')
     };
-    return Overlay.add(vm, 'view-dialog', {
+    return Overlay.modal({
+      view: vm,
+      template: 'view-dialog',
       width: 300
     });
   };
@@ -179,11 +184,19 @@
   };
 
   Overlay.removePopover = function(id) {
-    return $('#popover-' + id).koClean().remove();
+    var $po;
+    $po = $("#popover-" + id);
+    return $po.trigger('hidden.overlay.popover');
   };
 
   Overlay.removePopovers = function() {
-    return $('.popover').remove();
+    return $('.popover').each(function() {
+      return $(this).trigger('hidden.overlay.popover');
+    });
+  };
+
+  Overlay.repositionPopover = function(id) {
+    return Overlay.utils.positionPopover($("#popover-" + id));
   };
 
   Overlay.isVisible = function(id) {
@@ -209,24 +222,67 @@
     });
   };
 
-  Overlay.popover = function(el, vm, tmp, opts) {
-    var $po, id;
+  Overlay.popover = function(el, opts) {
+    var $po, id, tmp, vm;
+    vm = opts.view;
+    tmp = opts.template;
     id = vm.name;
-    opts.placement = opts.placement || 'bottom';
-    $po = $("<div id='popover-" + id + "' class='popover fade'><div class='arrow'></div><div class='popover-inner'><button class='close' data-bind='click : hidePopover'>x</button><h3 class='popover-title'>" + opts.title + "</h3><div class='popover-content' data-bind=\"template : '" + tmp + "'\"></div></div></div>");
+    opts.placement || (opts.placement = 'bottom');
+    opts.title || (opts.title = 'Options');
+    opts.width || (opts.width = 'auto');
+    opts.height || (opts.height = 'auto');
+    opts.element = el;
+    $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <h3 class='popover-title'>" + opts.title + "</h3> <div class='popover-content' data-bind=\"template : '" + tmp + "'\"></div> </div> </div>");
     return setTimeout(function() {
-      var actualHeight, actualWidth, pos, tp;
+      var zidx;
+      zidx = Overlay.utils.availableZIndex();
       $po.remove().css({
         top: 0,
         left: 0,
         display: 'block',
-        width: 'auto'
+        width: opts.width,
+        height: opts.height,
+        'z-index': zidx
       }).prependTo(document.body);
+      if (opts.style != null) {
+        $po.css(opts.style);
+      }
       $po.koBind(vm);
       $po.click(function(ev) {
         return ev.stopPropagation();
       });
-      pos = getElementPosition(el);
+      $po.on('hidden.overlay.popover', function() {
+        if (typeof vm.onHidden === "function") {
+          vm.onHidden();
+        }
+        return $po.koClean().remove();
+      });
+      $po.data('popover', opts);
+      return Overlay.utils.positionPopover($po);
+    }, 100);
+  };
+
+  Overlay.utils = {
+    getElementPosition: function(el) {
+      var ret;
+      ret = $(el).offset();
+      ret.width = el.offsetWidth;
+      ret.height = el.offsetHeight;
+      return ret;
+    },
+    availableZIndex: function() {
+      var idx;
+      idx = $('.modal.in, .popover').length;
+      return 1040 + (idx * 10);
+    },
+    positionPopover: function($po) {
+      var actualHeight, actualWidth, el, opts, pos, tp;
+      if ($po.length === 0) {
+        return;
+      }
+      opts = $po.data('popover');
+      el = opts.element;
+      pos = Overlay.utils.getElementPosition(el);
       actualWidth = $po[0].offsetWidth;
       actualHeight = $po[0].offsetHeight;
       switch (opts.placement) {
@@ -260,12 +316,8 @@
       if (tp.left < 0) {
         tp.left = 0;
       }
-      tp.display = 'block';
-      if (opts.style != null) {
-        $po.css(opts.style);
-      }
       return $po.css(tp).addClass(opts.placement).addClass('in');
-    }, 100);
+    }
   };
 
 }).call(this);
@@ -280,14 +332,15 @@
     var anim, idx, self;
     self = this;
     this.basic_show(_relatedTarget);
-    idx = $('.modal.in').length;
+    idx = $('.modal.in, .popover').length;
+    idx = Overlay.utils.availableZIndex();
     if (this.$backdrop != null) {
       if (this.options.className != null) {
         this.$backdrop.addClass(this.options.className);
       }
-      this.$backdrop.css('z-index', 1030 + (10 * idx));
+      this.$backdrop.css('z-index', idx - 1);
     }
-    this.$element.css('z-index', 1040 + (10 * idx));
+    this.$element.css('z-index', idx);
     if (this.options.attentionAnimation != null) {
       anim = this.options.attentionAnimation;
       return this.$element.on('click.dismiss.modal', function(ev) {
@@ -305,12 +358,22 @@
 
 }).call(this);
 (function() {
-  View.prototype.showAsOverlay = function(tmp, opts, cls) {
-    return Overlay.add(this, tmp, opts, cls);
+  View.prototype.showAsOverlay = function(tmp, opts) {
+    opts || (opts = {});
+    opts.view = this;
+    opts.template = tmp;
+    return Overlay.modal(opts);
   };
 
   View.prototype.showAsPopover = function(el, tmp, opts) {
-    return Overlay.popover(el, this, tmp, opts);
+    opts || (opts = {});
+    opts.view = this;
+    opts.template = tmp;
+    return Overlay.popover(el, opts);
+  };
+
+  View.prototype.repositionPopover = function() {
+    return Overlay.repositionPopover(this.name);
   };
 
   View.prototype.hideOverlay = function() {
@@ -329,8 +392,9 @@
     init: function(element, valueAccessor, bindingsAccessor, viewModel) {
       var opts;
       opts = valueAccessor();
+      opts.view || (opts.view = viewModel);
       return $(element).click(function() {
-        return Overlay.popover(element, viewModel, opts.template, opts);
+        return Overlay.popover(element, opts);
       });
     }
   };
