@@ -399,6 +399,40 @@
     }
   };
 
+  ko.bindingHandlers.tip = {
+    init: function(element, valueAccessor, bindingsAccessor, viewModel, bindingContext) {
+      var $tip_el, content, opts, tip;
+      opts = ko.unwrap(valueAccessor());
+      content = opts.template_id != null ? "<div data-bind=\"template : '" + opts.template_id + "'\"></div>" : opts.text || opts.content;
+      opts.placement || (opts.placement = 'bottom');
+      opts.html = opts.html || (opts.template_id != null) || false;
+      opts.title || (opts.title = content);
+      opts.container = 'body';
+      $(element).tooltip(opts);
+      tip = $(element).data('bs.tooltip');
+      $tip_el = tip.tip();
+      tip.setContent();
+      tip.setContent = function() {
+        if (opts.template_id != null) {
+
+        } else {
+          return $tip_el.find('.tooltip-inner').text(content);
+        }
+      };
+      $tip_el.koBind(viewModel);
+      return ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        $tip_el.koClean();
+        return tip.destroy();
+      });
+    },
+    update: function(element, valueAccessor, bindingsAccessor, viewModel, bindingContext) {
+      var opts, tip;
+      opts = ko.unwrap(valueAccessor());
+      tip = $(element).data('bs.tooltip');
+      return tip.setContent();
+    }
+  };
+
   ko.bindingHandlers.loadingOverlay = {
     update: function(element, valueAccessor) {
       var is_loading;
