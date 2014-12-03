@@ -3,8 +3,8 @@ class @Overlay
 	constructor : ->
 		@zindex = 100
 		@notifyTimer = null
-		$(document).click ->
-			Overlay.removePopovers()
+		#$(document).click ->
+		#Overlay.removePopovers()
 Overlay.instance = new Overlay()
 Overlay.closeDialog = ->
 		@remove('dialog')
@@ -34,16 +34,20 @@ Overlay.modal = (opts) ->
 					$modal_el.koClean()
 					$modal_el.remove()
 				, 100
-				vm.onHidden() if vm.onHidden?
-				opts.hidden() if opts.hidden
+				vm.hide()
+				vm.overlay_modal_element = null
 			$modal_el.on 'shown.bs.modal', (ev)->
 				return if ev.target.id != "overlay-#{id}"
-				vm.onShown(ev.target) if vm.onShown?
+				vm.show()
+				vm.overlay_modal_element = $modal_el[0]
 				opts.shown if opts.shown?
+			$modal_el.on 'hide.overlay.modal', (ev)->
+				$modal_el.modal('hide')
 
 			$modal_el.modal(opts)
 		, 100
 		#Overlay.instance.zindex = Overlay.instance.zindex + 10
+		return $modal_el[0]
 
 Overlay.dialog = (msg, opts) ->
 		vm =
@@ -140,17 +144,15 @@ Overlay.remove = (id) ->
 	Overlay.removePopover(id)
 
 Overlay.removeModal = (id) ->
-	$('#overlay-' + id).modal('hide')
-	$('#backdrop-' + id).remove()
-	$('#overlay-' + id).remove() if (id == 'confirm')
+	$('#overlay-' + id).trigger('hide.overlay.modal')
 
 Overlay.removePopover = (id) ->
 	$po = $("#popover-#{id}")
-	$po.trigger 'hidden.overlay.popover'
+	$po.trigger 'hide.overlay.popover'
 
 Overlay.removePopovers = ->
 	$('.popover').each ->
-		$(this).trigger 'hidden.overlay.popover'
+		$(this).trigger 'hide.overlay.popover'
 
 Overlay.repositionPopover = (id)->
 	Overlay.utils.positionPopover( $("#popover-#{id}") )
@@ -174,36 +176,56 @@ Overlay.popover = (el, opts)->
 	vm = opts.view
 	tmp = opts.template
 	id = vm.name
-	opts.placement ||= 'bottom'
+	opts.placement ||= 'right'
 	opts.title ||= 'Options'
 	opts.width ||= 'auto'
 	opts.height ||= 'auto'
-	opts.element = el
+	opts.container ||= 'body'
+	opts.top ||= -40
+	opts.left ||= -40
+	opts.anchor = el
 	$po = $("
 		<div id='popover-#{id}' class='popover fade'>
 			<div class='arrow'></div>
 			<div class='popover-inner'>
 				<button class='close' data-bind='click : hidePopover'>&times;</button>
-				<h3 class='popover-title'>#{opts.title}</h3>
-				<div class='popover-content' data-bind=\"template : '#{tmp}'\"></div>
+				<div class='#{tmp}' data-bind=\"template : '#{tmp}'\"></div>
 			</div>
 		</div>
 	")
+	$backdrop = $("<div class='popover-backdrop'></div>")
 
+	container = if opts.container == 'parent'
+		$(el).parent()
+	else
+		document.body
 	setTimeout ->
 		zidx = Overlay.utils.availableZIndex()
-		$po.remove().css({ top: 0, left: 0, display: 'block', width: opts.width, height: opts.height, 'z-index': zidx }).prependTo(document.body)
+		$po.remove().css({ top: 0, left: 0, display: 'block', width: opts.width, height: opts.height, 'z-index': zidx }).prependTo(container)
+		if opts.backdrop
+			$backdrop.css({'z-index': zidx-1})
+			$backdrop.click ->
+				$po.trigger('hide.overlay.popover')
+			$backdrop.prependTo(document.body)
+			opts.$backdrop = $backdrop
 		$po.css(opts.style) if opts.style?
 		$po.koBind(vm)
+		vm.overlay_popover_element = $po[0]
+		vm.show()
 		$po.click (ev)->
 			ev.stopPropagation()
-		$po.on 'hidden.overlay.popover', ->
-			vm.onHidden?()
+		$po.on 'hide.overlay.popover', ->
+			vm.hide()
+			vm.overlay_popover_element = null
 			$po.koClean().remove()
+			$backdrop.remove()
+		$po.on 'reposition.overlay.popover', ->
+			Overlay.utils.positionPopover($po)
 
-		$po.data('popover', opts)
+		$po.data('overlay.popover', opts)
 		Overlay.utils.positionPopover($po)
 	, 100
+	return $po[0]
 
 Overlay.utils = {
 	getElementPosition: (el)->
@@ -216,27 +238,57 @@ Overlay.utils = {
 		return 1040 + (idx * 10)
 	positionPopover : ($po)->
 		return if $po.length == 0
-		opts = $po.data('popover')
-		el = opts.element
-		pos = Overlay.utils.getElementPosition(el)
-		actualWidth = $po[0].offsetWidth
-		actualHeight = $po[0].offsetHeight
-		#console.log(actualWidth + ' ' + actualHeight)
-		#console.log(pos)
+		$arrow = $po.find('.arrow')
+		opts = $po.data('overlay.popover')
+		anchor = opts.anchor
+		anchor_pos = Overlay.utils.getElementPosition(anchor)
+		an_t = anchor_pos.top
+		an_l = anchor_pos.left
+		an_w = anchor_pos.width
+		an_h = anchor_pos.height
+		po_w = $po[0].offsetWidth
+		po_h = $po[0].offsetHeight
+		win_w = $(window).width()
+		top = 0
+		left = 0
 
-		switch (opts.placement)
-			when 'bottom'
-				tp = {top: pos.top + pos.height, left: pos.left + pos.width / 2 - actualWidth / 2}
-			when 'top'
-				tp = {top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2}
-			when 'left'
-				tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth}
-			when 'right'
-				tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width}
+		# try placements
+		placement = null
+		for pl in opts.placement.split(' ')
+			placement = pl
+			switch (pl)
+				when 'bottom'
+					top = an_t + an_h
+					left = an_l + an_w / 2 - po_w / 2
+				when 'top'
+					top = an_t - po_h
+					left = an_l + an_w / 2 - po_w / 2
+				when 'left'
+					left = an_l - po_w
+					if opts.top == 'center'
+						top = an_t + an_h / 2 - po_h / 2
+					else
+						top = an_t + opts.top
+				when 'right'
+					left = an_l + an_w
+					if opts.top == 'center'
+						top = an_t + an_h / 2 - po_h / 2
+					else
+						top = an_t + opts.top
+			
+			# check metrics
+			if pl == 'right' && (left + po_w) > win_w
+				continue
+			if pl == 'left' && (left < 0)
+				continue
+			else
+				break
+			
+		top = 0 if top < 0
+		left = 0 if left < 0
 		
-		tp.top = 0 if tp.top < 0
-		tp.left = 0 if tp.left < 0
-		
-		$po.css(tp).addClass(opts.placement).addClass('in')
+		$po.offset({top: top, left: left}).addClass(placement).addClass('in')
+		if opts.top != 'center'
+			$arrow.css({top: Math.abs(opts.top) + an_h / 2})
 }
 	

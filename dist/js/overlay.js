@@ -3,9 +3,6 @@
     function Overlay() {
       this.zindex = 100;
       this.notifyTimer = null;
-      $(document).click(function() {
-        return Overlay.removePopovers();
-      });
     }
 
     return Overlay;
@@ -37,7 +34,7 @@
     }
     $modal_dialog.css(css_opts);
     $modal_el.addClass(cls);
-    return setTimeout(function() {
+    setTimeout(function() {
       $modal_el.koBind(vm);
       $modal_el.on('hidden.bs.modal', function(ev) {
         if (ev.target.id !== ("overlay-" + id)) {
@@ -48,26 +45,25 @@
           $modal_el.koClean();
           return $modal_el.remove();
         }, 100);
-        if (vm.onHidden != null) {
-          vm.onHidden();
-        }
-        if (opts.hidden) {
-          return opts.hidden();
-        }
+        vm.hide();
+        return vm.overlay_modal_element = null;
       });
       $modal_el.on('shown.bs.modal', function(ev) {
         if (ev.target.id !== ("overlay-" + id)) {
           return;
         }
-        if (vm.onShown != null) {
-          vm.onShown(ev.target);
-        }
+        vm.show();
+        vm.overlay_modal_element = $modal_el[0];
         if (opts.shown != null) {
           return opts.shown;
         }
       });
+      $modal_el.on('hide.overlay.modal', function(ev) {
+        return $modal_el.modal('hide');
+      });
       return $modal_el.modal(opts);
     }, 100);
+    return $modal_el[0];
   };
 
   Overlay.dialog = function(msg, opts) {
@@ -176,22 +172,18 @@
   };
 
   Overlay.removeModal = function(id) {
-    $('#overlay-' + id).modal('hide');
-    $('#backdrop-' + id).remove();
-    if (id === 'confirm') {
-      return $('#overlay-' + id).remove();
-    }
+    return $('#overlay-' + id).trigger('hide.overlay.modal');
   };
 
   Overlay.removePopover = function(id) {
     var $po;
     $po = $("#popover-" + id);
-    return $po.trigger('hidden.overlay.popover');
+    return $po.trigger('hide.overlay.popover');
   };
 
   Overlay.removePopovers = function() {
     return $('.popover').each(function() {
-      return $(this).trigger('hidden.overlay.popover');
+      return $(this).trigger('hide.overlay.popover');
     });
   };
 
@@ -223,17 +215,22 @@
   };
 
   Overlay.popover = function(el, opts) {
-    var $po, id, tmp, vm;
+    var $backdrop, $po, container, id, tmp, vm;
     vm = opts.view;
     tmp = opts.template;
     id = vm.name;
-    opts.placement || (opts.placement = 'bottom');
+    opts.placement || (opts.placement = 'right');
     opts.title || (opts.title = 'Options');
     opts.width || (opts.width = 'auto');
     opts.height || (opts.height = 'auto');
-    opts.element = el;
-    $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <h3 class='popover-title'>" + opts.title + "</h3> <div class='popover-content' data-bind=\"template : '" + tmp + "'\"></div> </div> </div>");
-    return setTimeout(function() {
+    opts.container || (opts.container = 'body');
+    opts.top || (opts.top = -40);
+    opts.left || (opts.left = -40);
+    opts.anchor = el;
+    $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"template : '" + tmp + "'\"></div> </div> </div>");
+    $backdrop = $("<div class='popover-backdrop'></div>");
+    container = opts.container === 'parent' ? $(el).parent() : document.body;
+    setTimeout(function() {
       var zidx;
       zidx = Overlay.utils.availableZIndex();
       $po.remove().css({
@@ -243,23 +240,39 @@
         width: opts.width,
         height: opts.height,
         'z-index': zidx
-      }).prependTo(document.body);
+      }).prependTo(container);
+      if (opts.backdrop) {
+        $backdrop.css({
+          'z-index': zidx - 1
+        });
+        $backdrop.click(function() {
+          return $po.trigger('hide.overlay.popover');
+        });
+        $backdrop.prependTo(document.body);
+        opts.$backdrop = $backdrop;
+      }
       if (opts.style != null) {
         $po.css(opts.style);
       }
       $po.koBind(vm);
+      vm.overlay_popover_element = $po[0];
+      vm.show();
       $po.click(function(ev) {
         return ev.stopPropagation();
       });
-      $po.on('hidden.overlay.popover', function() {
-        if (typeof vm.onHidden === "function") {
-          vm.onHidden();
-        }
-        return $po.koClean().remove();
+      $po.on('hide.overlay.popover', function() {
+        vm.hide();
+        vm.overlay_popover_element = null;
+        $po.koClean().remove();
+        return $backdrop.remove();
       });
-      $po.data('popover', opts);
+      $po.on('reposition.overlay.popover', function() {
+        return Overlay.utils.positionPopover($po);
+      });
+      $po.data('overlay.popover', opts);
       return Overlay.utils.positionPopover($po);
     }, 100);
+    return $po[0];
   };
 
   Overlay.utils = {
@@ -276,47 +289,77 @@
       return 1040 + (idx * 10);
     },
     positionPopover: function($po) {
-      var actualHeight, actualWidth, el, opts, pos, tp;
+      var $arrow, an_h, an_l, an_t, an_w, anchor, anchor_pos, left, opts, pl, placement, po_h, po_w, top, win_w, _i, _len, _ref;
       if ($po.length === 0) {
         return;
       }
-      opts = $po.data('popover');
-      el = opts.element;
-      pos = Overlay.utils.getElementPosition(el);
-      actualWidth = $po[0].offsetWidth;
-      actualHeight = $po[0].offsetHeight;
-      switch (opts.placement) {
-        case 'bottom':
-          tp = {
-            top: pos.top + pos.height,
-            left: pos.left + pos.width / 2 - actualWidth / 2
-          };
+      $arrow = $po.find('.arrow');
+      opts = $po.data('overlay.popover');
+      anchor = opts.anchor;
+      anchor_pos = Overlay.utils.getElementPosition(anchor);
+      an_t = anchor_pos.top;
+      an_l = anchor_pos.left;
+      an_w = anchor_pos.width;
+      an_h = anchor_pos.height;
+      po_w = $po[0].offsetWidth;
+      po_h = $po[0].offsetHeight;
+      win_w = $(window).width();
+      top = 0;
+      left = 0;
+      placement = null;
+      _ref = opts.placement.split(' ');
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pl = _ref[_i];
+        placement = pl;
+        switch (pl) {
+          case 'bottom':
+            top = an_t + an_h;
+            left = an_l + an_w / 2 - po_w / 2;
+            break;
+          case 'top':
+            top = an_t - po_h;
+            left = an_l + an_w / 2 - po_w / 2;
+            break;
+          case 'left':
+            left = an_l - po_w;
+            if (opts.top === 'center') {
+              top = an_t + an_h / 2 - po_h / 2;
+            } else {
+              top = an_t + opts.top;
+            }
+            break;
+          case 'right':
+            left = an_l + an_w;
+            if (opts.top === 'center') {
+              top = an_t + an_h / 2 - po_h / 2;
+            } else {
+              top = an_t + opts.top;
+            }
+        }
+        if (pl === 'right' && (left + po_w) > win_w) {
+          continue;
+        }
+        if (pl === 'left' && (left < 0)) {
+          continue;
+        } else {
           break;
-        case 'top':
-          tp = {
-            top: pos.top - actualHeight,
-            left: pos.left + pos.width / 2 - actualWidth / 2
-          };
-          break;
-        case 'left':
-          tp = {
-            top: pos.top + pos.height / 2 - actualHeight / 2,
-            left: pos.left - actualWidth
-          };
-          break;
-        case 'right':
-          tp = {
-            top: pos.top + pos.height / 2 - actualHeight / 2,
-            left: pos.left + pos.width
-          };
+        }
       }
-      if (tp.top < 0) {
-        tp.top = 0;
+      if (top < 0) {
+        top = 0;
       }
-      if (tp.left < 0) {
-        tp.left = 0;
+      if (left < 0) {
+        left = 0;
       }
-      return $po.css(tp).addClass(opts.placement).addClass('in');
+      $po.offset({
+        top: top,
+        left: left
+      }).addClass(placement).addClass('in');
+      if (opts.top !== 'center') {
+        return $arrow.css({
+          top: Math.abs(opts.top) + an_h / 2
+        });
+      }
     }
   };
 
@@ -358,12 +401,14 @@
 
 }).call(this);
 (function() {
-  View.prototype.showAsOverlay = function(tmp, opts) {
+  View.prototype.showAsModal = function(tmp, opts) {
     opts || (opts = {});
     opts.view = this;
     opts.template = tmp;
     return Overlay.modal(opts);
   };
+
+  View.prototype.showAsOverlay = View.prototype.showAsModal;
 
   View.prototype.showAsPopover = function(el, tmp, opts) {
     opts || (opts = {});
@@ -373,19 +418,24 @@
   };
 
   View.prototype.repositionPopover = function() {
-    return Overlay.repositionPopover(this.name);
+    return $(this.overlay_popover_element).trigger('reposition.overlay.popover');
   };
 
   View.prototype.hideOverlay = function() {
-    return Overlay.remove(this.name);
+    this.hideModal();
+    return this.hidePopover();
   };
 
   View.prototype.hidePopover = function() {
-    return Overlay.removePopover(this.name);
+    if (this.overlay_popover_element != null) {
+      return $(this.overlay_popover_element).trigger('hide.overlay.popover');
+    }
   };
 
-  View.prototype.overlayVisible = function() {
-    return Overlay.isVisible(this.name);
+  View.prototype.hideModal = function() {
+    if (this.overlay_modal_element != null) {
+      return $(this.overlay_modal_element).trigger('hide.overlay.modal');
+    }
   };
 
   ko.bindingHandlers.popover = {
@@ -403,7 +453,7 @@
     init: function(element, valueAccessor, bindingsAccessor, viewModel, bindingContext) {
       var $tip_el, content, opts, tip;
       opts = ko.unwrap(valueAccessor());
-      content = opts.template_id != null ? "<div data-bind=\"template : '" + opts.template_id + "'\"></div>" : opts.text || opts.content;
+      content = opts.template_id != null ? "<div data-bind=\"template : '" + opts.template_id + "'\"></div>" : opts.content;
       opts.placement || (opts.placement = 'bottom');
       opts.html = opts.html || (opts.template_id != null) || false;
       opts.title || (opts.title = content);
@@ -412,7 +462,11 @@
       tip = $(element).data('bs.tooltip');
       $tip_el = tip.tip();
       tip.setContent();
-      tip.setContent = function() {
+      tip.setContent = function(content) {
+        if (content == null) {
+          return;
+        }
+        tip.options.title = content;
         if (opts.template_id != null) {
 
         } else {
@@ -429,7 +483,7 @@
       var opts, tip;
       opts = ko.unwrap(valueAccessor());
       tip = $(element).data('bs.tooltip');
-      return tip.setContent();
+      return tip.setContent(opts.content);
     }
   };
 

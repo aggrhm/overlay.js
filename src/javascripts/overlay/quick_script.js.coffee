@@ -1,23 +1,25 @@
 ## QuickScript Extensions
 
-View::showAsOverlay = (tmp, opts)->
+View::showAsModal = (tmp, opts)->
 	opts ||= {}
 	opts.view = this
 	opts.template = tmp
 	Overlay.modal(opts)
+View::showAsOverlay = View::showAsModal
 View::showAsPopover = (el, tmp, opts)->
 	opts ||= {}
 	opts.view = this
 	opts.template = tmp
 	Overlay.popover(el, opts)
 View::repositionPopover = ->
-	Overlay.repositionPopover( @name )
+	$(@overlay_popover_element).trigger 'reposition.overlay.popover'
 View::hideOverlay = ->
-	Overlay.remove(@name)
+	@hideModal()
+	@hidePopover()
 View::hidePopover = ->
-	Overlay.removePopover(@name)
-View::overlayVisible = ->
-	Overlay.isVisible(@name)
+	$(@overlay_popover_element).trigger 'hide.overlay.popover' if @overlay_popover_element?
+View::hideModal = ->
+	$(@overlay_modal_element).trigger 'hide.overlay.modal' if @overlay_modal_element?
 
 
 # popover : {template : <tmp>, placement : <pos>}
@@ -36,7 +38,7 @@ ko.bindingHandlers.tip =
 		content = if opts.template_id?
 			"<div data-bind=\"template : '#{opts.template_id}'\"></div>"
 		else
-			opts.text || opts.content
+			opts.content
 		opts.placement ||= 'bottom'
 		opts.html = opts.html || opts.template_id? || false
 		opts.title ||= content
@@ -45,7 +47,9 @@ ko.bindingHandlers.tip =
 		tip = $(element).data('bs.tooltip')
 		$tip_el = tip.tip()
 		tip.setContent()
-		tip.setContent = ->		# set content does nothing now
+		tip.setContent = (content)->		# set content does nothing now
+			return if !content?
+			tip.options.title = content
 			if opts.template_id?
 				# do nothing
 			else
@@ -58,7 +62,7 @@ ko.bindingHandlers.tip =
 	update : (element, valueAccessor, bindingsAccessor, viewModel, bindingContext) ->
 		opts = ko.unwrap(valueAccessor())
 		tip = $(element).data('bs.tooltip')
-		tip.setContent()
+		tip.setContent(opts.content)
 
 
 ko.bindingHandlers.loadingOverlay =
