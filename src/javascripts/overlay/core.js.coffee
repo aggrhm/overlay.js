@@ -18,7 +18,7 @@ Overlay.modal = (opts) ->
 		template = tmp
 		#options['z-index'] = Overlay.instance.zindex + 10
 		$('#overlay-' + id).remove()
-		modal_tpl = "<div id='overlay-#{id}' class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>&times;</button><div class='#{template}' data-bind=\"template: '#{template}'\"></div></div></div></div>"
+		modal_tpl = "<div id='overlay-#{id}' class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>&times;</button><div class='#{template}' data-bind=\"updateContext : {'$view': $data}, template: '#{template}'\"></div></div></div></div>"
 		$modal_el = $(modal_tpl).appendTo('body')
 		$modal_dialog = $modal_el.find('.modal-dialog')
 		$modal_dialog.css({width : opts.width + 'px'}) if opts.width?
@@ -189,7 +189,7 @@ Overlay.popover = (el, opts)->
 			<div class='arrow'></div>
 			<div class='popover-inner'>
 				<button class='close' data-bind='click : hidePopover'>&times;</button>
-				<div class='#{tmp}' data-bind=\"template : '#{tmp}'\"></div>
+				<div class='#{tmp}' data-bind=\"updateContext : {'$view': $data}, template : '#{tmp}'\"></div>
 			</div>
 		</div>
 	")
@@ -209,6 +209,7 @@ Overlay.popover = (el, opts)->
 			$backdrop.prependTo(document.body)
 			opts.$backdrop = $backdrop
 		$po.css(opts.style) if opts.style?
+		$po.attr('data-bind', opts.binding) if opts.binding?
 		$po.koBind(vm)
 		vm.overlay_popover_element = $po[0]
 		vm.show()
@@ -249,6 +250,7 @@ Overlay.utils = {
 		po_w = $po[0].offsetWidth
 		po_h = $po[0].offsetHeight
 		win_w = $(window).width()
+		win_h = $(window).height()
 		top = 0
 		left = 0
 
@@ -284,11 +286,17 @@ Overlay.utils = {
 			else
 				break
 			
-		top = 0 if top < 0
+		# fix top
+		if top < 0
+			top = 0
+		else if top + po_h > win_h
+			top = win_h - po_h
+		# fix left
 		left = 0 if left < 0
 		
 		$po.offset({top: top, left: left}).addClass(placement).addClass('in')
+		ao_t = top - an_t
 		if opts.top != 'center'
-			$arrow.css({top: Math.abs(opts.top) + an_h / 2})
+			$arrow.css({top: Math.abs(ao_t) + an_h / 2})
 }
 	
