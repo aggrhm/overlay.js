@@ -79,8 +79,10 @@ Overlay.clearNotifications = ->
 		$('#overlay-notify').remove()
 
 Overlay.confirm = (msg, opts) ->
+		opts.title ||= "Continue?"
 		vm =
 			message : msg
+			title : opts.title
 			yes : ->
 				$('#overlay-confirm').modal('hide')
 				opts.yes() if opts.yes?
@@ -91,7 +93,7 @@ Overlay.confirm = (msg, opts) ->
 			<div id='overlay-confirm' class='modal fade'>
 				<div class='modal-dialog'>
 					<div class='modal-content'>
-						<div class='modal-header'><h4 class='modal-title'>Continue?</h4></div>
+						<div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div>
 						<div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div>
 						<div class='modal-footer'><button class='btn btn-danger' data-bind='click : no'>No</button><button class='btn btn-success' data-bind='click : yes'>Yes</button></div>
 					</div>
@@ -112,8 +114,10 @@ Overlay.confirm = (msg, opts) ->
 
 Overlay.alert = (msg, opts) ->
 		opts ||= {}
+		opts.title ||= "Alert!"
 		vm =
 			message : msg
+			title : opts.title
 			ok : ->
 				$('#overlay-alert').modal('hide')
 				opts.ok() if opts.ok?
@@ -121,7 +125,7 @@ Overlay.alert = (msg, opts) ->
 			<div id='overlay-alert' class='modal fade'>
 				<div class='modal-dialog'>
 					<div class='modal-content'>
-						<div class='modal-header'><h4 class='modal-title'>Alert!</h4></div>
+						<div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div>
 						<div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div>
 						<div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div>
 					</div>

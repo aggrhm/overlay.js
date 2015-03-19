@@ -108,8 +108,10 @@
 
   Overlay.confirm = function(msg, opts) {
     var $modal, tmp, vm;
+    opts.title || (opts.title = "Continue?");
     vm = {
       message: msg,
+      title: opts.title,
       yes: function() {
         $('#overlay-confirm').modal('hide');
         if (opts.yes != null) {
@@ -123,7 +125,7 @@
         }
       }
     };
-    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title'>Continue?</h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-danger' data-bind='click : no'>No</button><button class='btn btn-success' data-bind='click : yes'>Yes</button></div> </div> </div> </div>";
+    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-danger' data-bind='click : no'>No</button><button class='btn btn-success' data-bind='click : yes'>Yes</button></div> </div> </div> </div>";
     $modal = $('#overlay-confirm');
     if ($modal.length === 0) {
       $modal = $(tmp);
@@ -142,8 +144,10 @@
   Overlay.alert = function(msg, opts) {
     var $modal, tmp, vm;
     opts || (opts = {});
+    opts.title || (opts.title = "Alert!");
     vm = {
       message: msg,
+      title: opts.title,
       ok: function() {
         $('#overlay-alert').modal('hide');
         if (opts.ok != null) {
@@ -151,7 +155,7 @@
         }
       }
     };
-    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title'>Alert!</h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
+    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
     $modal = $('#overlay-alert');
     if ($modal.length === 0) {
       $modal = $(tmp);

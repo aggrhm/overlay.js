@@ -60,7 +60,7 @@
     width: 32px;
     display: none; }
   .overlay-notify-elegant .title {
-    font-weight: bold;
+    font-weight: normal;
     letter-spacing: 1px; }
 
 .overlay-loading-screen {
