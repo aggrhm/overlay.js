@@ -69,7 +69,7 @@ ko.bindingHandlers.loadingOverlay =
 	update : (element, valueAccessor) ->
 		is_loading = ko.utils.unwrapObservable(valueAccessor())
 		if is_loading
-			$(element).prepend("<div class='overlay-loading-inline'><img src='#{AssetsLibrary['overlay-spinner']}'/></div>") if $(element).children('.overlay-loading-inline').length == 0
+			$(element).prepend("<div class='overlay-loading-inline'>#{Overlay.templates.loading_overlay()}</div>") if $(element).children('.overlay-loading-inline').length == 0
 		else
 			$(element).children('.overlay-loading-inline').fadeOut('fast', (-> $(this).remove()))
 

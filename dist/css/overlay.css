@@ -22,7 +22,7 @@
   bottom: 0px;
   background: transparent; }
 
-.overlay-notify-elegant {
+.overlay-notify {
   position: fixed;
   padding: 10px;
   box-shadow: 0px 0px 8px 3px rgba(0, 0, 0, 0.3);
@@ -30,36 +30,36 @@
   z-index: 10000;
   background: rgba(255, 255, 255, 0.95);
   color: #444444; }
-  .overlay-notify-elegant.info, .overlay-notify-elegant.success {
+  .overlay-notify.info, .overlay-notify.success {
     border-top: 1px solid #00aa00;
     border-bottom: 1px solid #00aa00;
     border-right: 1px solid #00aa00;
     border-left: 4px solid #00aa00; }
-  .overlay-notify-elegant.error {
+  .overlay-notify.error {
     border-top: 1px solid #aa0000;
     border-bottom: 1px solid #aa0000;
     border-right: 1px solid #aa0000;
     border-left: 4px solid #aa0000; }
-  .overlay-notify-elegant.p-middle {
+  .overlay-notify.p-middle {
     top: 10px;
     left: 50%;
     margin-left: -215px;
     width: 400px; }
-  .overlay-notify-elegant.p-right {
+  .overlay-notify.p-right {
     top: 15px;
     right: 15px;
     width: 300px; }
-  .overlay-notify-elegant.p-left {
+  .overlay-notify.p-left {
     top: 15px;
     left: 15px;
     width: 300px; }
-  .overlay-notify-elegant .icon {
+  .overlay-notify .icon {
     position: absolute;
     top: 10px;
     left: 10px;
     width: 32px;
     display: none; }
-  .overlay-notify-elegant .title {
+  .overlay-notify .message {
     font-weight: normal;
     letter-spacing: 1px; }
 
@@ -106,10 +106,41 @@
     font-weight: bold;
     width: 200px;
     background-color: rgba(255, 255, 255, 0.2); }
-  .overlay-loading-inline img {
+  .overlay-loading-inline .overlay-spinner-1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-top: -10px;
-    margin-left: -10px; }
+    margin-top: -25px;
+    margin-left: -25px; }
+
+.overlay-spinner-1 {
+  border: 5px solid rgba(200, 200, 200, 0.2);
+  border-left-color: #aacc00;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear; }
+
+.overlay-spinner-1, .overlay-spinner-1:after {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px; }
+
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
 

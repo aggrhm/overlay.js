@@ -11,6 +11,15 @@
 
   Overlay.instance = new Overlay();
 
+  Overlay.templates = {
+    loading_overlay: function(opts) {
+      return "<div class='overlay-spinner-1'></div>";
+    },
+    notify: function(opts) {
+      return "<div class='message'>" + opts.message + "</div>";
+    }
+  };
+
   Overlay.closeDialog = function() {
     return this.remove('dialog');
   };
@@ -87,9 +96,10 @@
     opts = opts || {};
     opts.timeout = opts.timeout || 3000;
     opts.position = opts.position || 'right';
-    type = type || 'info';
+    opts.message = msg;
+    opts.type = type = type || 'info';
     Overlay.clearNotifications();
-    $('body').prepend("<div id='overlay-notify' class='overlay-notify-elegant " + type + " p-" + opts.position + "' style='display: none;'><img class='icon' src='" + AssetsLibrary['overlay-notify'] + "'/><div class='title'>" + msg + "</div></div>");
+    $('body').prepend("<div id='overlay-notify' class='overlay-notify " + type + " p-" + opts.position + "' style='display: none;'>" + (Overlay.templates.notify(opts)) + "</div>");
     $notif = $('#overlay-notify');
     if ((opts.css != null)) {
       $notif.addClass(opts.css);
@@ -504,7 +514,7 @@
       is_loading = ko.utils.unwrapObservable(valueAccessor());
       if (is_loading) {
         if ($(element).children('.overlay-loading-inline').length === 0) {
-          return $(element).prepend("<div class='overlay-loading-inline'><img src='" + AssetsLibrary['overlay-spinner'] + "'/></div>");
+          return $(element).prepend("<div class='overlay-loading-inline'>" + (Overlay.templates.loading_overlay()) + "</div>");
         }
       } else {
         return $(element).children('.overlay-loading-inline').fadeOut('fast', (function() {

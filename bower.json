@@ -1,10 +1,8 @@
 {
   "name": "overlay",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "main": [
     "./dist/css/overlay.css",
     "./dist/js/overlay.js",
-    "./dist/img/spinner.gif",
-    "./dist/img/notify.png"
   ]
 }

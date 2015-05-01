@@ -23,7 +23,7 @@
 	background: transparent
 
 
-.overlay-notify-elegant
+.overlay-notify
 	position: fixed
 	padding: 10px
 	box-shadow: 0px 0px 8px 3px rgba(0, 0, 0, 0.3)
@@ -63,7 +63,7 @@
 		width: 32px
 		display: none
 
-	.title
+	.message
 		font-weight: normal
 		letter-spacing: 1px
 
@@ -116,10 +116,40 @@
 		width: 200px
 		background-color: rgba(255, 255, 255, .2)
 
-	img
+	.overlay-spinner-1
 		position: absolute
 		top: 50%
 		left: 50%
-		margin-top: -10px
-		margin-left: -10px
+		margin-top: -25px
+		margin-left: -25px
+
+.overlay-spinner-1
+	border: 5px solid rgba(200, 200, 200, 0.2)
+	border-left-color: #ac0
+	-webkit-transform: translateZ(0)
+	-ms-transform: translateZ(0)
+	transform: translateZ(0)
+	-webkit-animation: load8 1.1s infinite linear
+	animation: load8 1.1s infinite linear
+
+.overlay-spinner-1, .overlay-spinner-1:after
+	border-radius: 50%
+	width: 50px
+	height: 50px
+
+@-webkit-keyframes load8
+	0%
+		-webkit-transform: rotate(0deg)
+		transform: rotate(0deg)
+	100%
+		-webkit-transform: rotate(360deg)
+		transform: rotate(360deg)
+
+@keyframes load8
+	0%
+		-webkit-transform: rotate(0deg)
+		transform: rotate(0deg)
+	100%
+		-webkit-transform: rotate(360deg)
+		transform: rotate(360deg)
 

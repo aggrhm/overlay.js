@@ -6,6 +6,9 @@ class @Overlay
 		#$(document).click ->
 		#Overlay.removePopovers()
 Overlay.instance = new Overlay()
+Overlay.templates =
+	loading_overlay : (opts)-> "<div class='overlay-spinner-1'></div>"
+	notify : (opts)-> "<div class='message'>#{opts.message}</div>"
 Overlay.closeDialog = ->
 		@remove('dialog')
 
@@ -62,10 +65,11 @@ Overlay.notify = (msg, type, opts) ->
 		opts = opts || {}
 		opts.timeout = opts.timeout || 3000
 		opts.position = opts.position || 'right'
-		type = type || 'info'
+		opts.message = msg
+		opts.type = type = (type || 'info')
 
 		Overlay.clearNotifications()
-		$('body').prepend("<div id='overlay-notify' class='overlay-notify-elegant #{type} p-#{opts.position}' style='display: none;'><img class='icon' src='#{AssetsLibrary['overlay-notify']}'/><div class='title'>#{msg}</div></div>")
+		$('body').prepend("<div id='overlay-notify' class='overlay-notify #{type} p-#{opts.position}' style='display: none;'>#{Overlay.templates.notify(opts)}</div>")
 		$notif = $('#overlay-notify')
 		$notif.addClass(opts.css) if (opts.css?)
 		$notif.fadeIn 'slow', ->
