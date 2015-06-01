@@ -133,9 +133,11 @@
         if (opts.no != null) {
           return opts.no();
         }
-      }
+      },
+      yes_text: opts.yes_text || "Yes",
+      no_text: opts.no_text || "No"
     };
-    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-danger' data-bind='click : no'>No</button><button class='btn btn-success' data-bind='click : yes'>Yes</button></div> </div> </div> </div>";
+    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-default' data-bind='click : no, html : no_text'>No</button><button class='btn btn-success' data-bind='click : yes, html : yes_text'>Yes</button></div> </div> </div> </div>";
     $modal = $('#overlay-confirm');
     if ($modal.length === 0) {
       $modal = $(tmp);

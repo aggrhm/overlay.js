@@ -143,4 +143,10 @@
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg); } }
+#overlay-confirm .modal-dialog {
+  width: 400px; }
+#overlay-confirm .modal-header h4 {
+  font-weight: bold; }
+#overlay-confirm .modal-body {
+  font-size: 20px; }
 
