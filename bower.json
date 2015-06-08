@@ -1,6 +1,6 @@
 {
   "name": "overlay",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "main": [
     "./dist/css/overlay.css",
     "./dist/js/overlay.js"

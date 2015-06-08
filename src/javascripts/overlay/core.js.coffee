@@ -27,6 +27,7 @@ Overlay.modal = (opts) ->
 		$modal_dialog.css({width : opts.width + 'px'}) if opts.width?
 		$modal_dialog.css(css_opts)
 		$modal_el.addClass(cls)
+		opts.beforeBind?($modal_el)
 		#$('#overlay-' + id).css({'margin-left' : -1 * $('#overlay-' + id).width() / 2})
 		setTimeout ->
 			$modal_el.koBind(vm)

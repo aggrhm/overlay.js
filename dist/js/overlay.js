@@ -43,6 +43,9 @@
     }
     $modal_dialog.css(css_opts);
     $modal_el.addClass(cls);
+    if (typeof opts.beforeBind === "function") {
+      opts.beforeBind($modal_el);
+    }
     setTimeout(function() {
       $modal_el.koBind(vm);
       $modal_el.on('hidden.bs.modal', function(ev) {
