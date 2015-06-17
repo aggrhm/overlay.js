@@ -46,6 +46,7 @@ ko.bindingHandlers.tip =
 		$(element).tooltip(opts)
 		tip = $(element).data('bs.tooltip')
 		$tip_el = tip.tip()
+		$tip_el.addClass(opts.className) if opts.className?
 		tip.setContent()
 		tip.setContent = (content)->		# set content does nothing now
 			return if !content?

@@ -83,7 +83,7 @@ badd +1 src/javascripts/overlay/bootstrap.js.coffee
 badd +1 src/stylesheets/overlay/core.css.sass
 args src/javascripts/overlay/core.js.coffee
 set lines=40 columns=80
-winpos 776 23
+winpos 1546 354
 edit bower.json
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -94,8 +94,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 20 + 20) / 40)
-exe '2resize ' . ((&lines * 16 + 20) / 40)
+exe '1resize ' . ((&lines * 21 + 20) / 40)
+exe '2resize ' . ((&lines * 15 + 20) / 40)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -199,11 +199,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 6 - ((3 * winheight(0) + 10) / 20)
+let s:l = 3 - ((2 * winheight(0) + 10) / 21)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-6
+3
 normal! 019|
 wincmd w
 argglobal
@@ -310,15 +310,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 13 - ((11 * winheight(0) + 8) / 16)
+let s:l = 13 - ((0 * winheight(0) + 7) / 15)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 13
 normal! 0
 wincmd w
-exe '1resize ' . ((&lines * 20 + 20) / 40)
-exe '2resize ' . ((&lines * 16 + 20) / 40)
+exe '1resize ' . ((&lines * 21 + 20) / 40)
+exe '2resize ' . ((&lines * 15 + 20) / 40)
 tabedit src/javascripts/overlay/core.js.coffee
 set splitbelow splitright
 set nosplitbelow
@@ -428,12 +428,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 96 - ((15 * winheight(0) + 19) / 38)
+let s:l = 30 - ((13 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-96
-normal! 090|
+30
+normal! 020|
 tabedit src/javascripts/overlay/quick_script.js.coffee
 set splitbelow splitright
 set nosplitbelow
@@ -700,7 +700,7 @@ setlocal dictionary=
 setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
-setlocal expandtab
+setlocal noexpandtab
 if &filetype != 'sass'
 setlocal filetype=sass
 endif
@@ -773,12 +773,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 48 - ((34 * winheight(0) + 19) / 38)
+let s:l = 159 - ((31 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-48
-normal! 023|
+159
+normal! 04|
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

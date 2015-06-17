@@ -487,6 +487,9 @@
       $(element).tooltip(opts);
       tip = $(element).data('bs.tooltip');
       $tip_el = tip.tip();
+      if (opts.className != null) {
+        $tip_el.addClass(opts.className);
+      }
       tip.setContent();
       tip.setContent = function(content) {
         if (content == null) {
