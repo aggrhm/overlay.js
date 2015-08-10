@@ -83,7 +83,7 @@ badd +1 src/javascripts/overlay/bootstrap.js.coffee
 badd +1 src/stylesheets/overlay/core.css.sass
 args src/javascripts/overlay/core.js.coffee
 set lines=40 columns=80
-winpos 1546 354
+winpos 468 101
 edit bower.json
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -94,8 +94,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 21 + 20) / 40)
-exe '2resize ' . ((&lines * 15 + 20) / 40)
+exe '1resize ' . ((&lines * 22 + 20) / 40)
+exe '2resize ' . ((&lines * 14 + 20) / 40)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -199,7 +199,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 3 - ((2 * winheight(0) + 10) / 21)
+let s:l = 3 - ((2 * winheight(0) + 11) / 22)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -310,15 +310,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 13 - ((0 * winheight(0) + 7) / 15)
+let s:l = 19 - ((6 * winheight(0) + 7) / 14)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-13
-normal! 0
+19
+normal! 019|
 wincmd w
-exe '1resize ' . ((&lines * 21 + 20) / 40)
-exe '2resize ' . ((&lines * 15 + 20) / 40)
+2wincmd w
+exe '1resize ' . ((&lines * 22 + 20) / 40)
+exe '2resize ' . ((&lines * 14 + 20) / 40)
 tabedit src/javascripts/overlay/core.js.coffee
 set splitbelow splitright
 set nosplitbelow
@@ -428,12 +429,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 30 - ((13 * winheight(0) + 19) / 38)
+let s:l = 28 - ((27 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-30
-normal! 020|
+28
+normal! 019|
+2wincmd w
 tabedit src/javascripts/overlay/quick_script.js.coffee
 set splitbelow splitright
 set nosplitbelow
@@ -543,12 +545,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 75 - ((33 * winheight(0) + 19) / 38)
+let s:l = 45 - ((12 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-75
-normal! 0
+45
+normal! 027|
+2wincmd w
 tabedit src/javascripts/overlay/bootstrap.js.coffee
 set splitbelow splitright
 set nosplitbelow
@@ -664,6 +667,7 @@ exe s:l
 normal! zt
 1
 normal! 0
+2wincmd w
 tabedit src/stylesheets/overlay/core.css.sass
 set splitbelow splitright
 set nosplitbelow
@@ -700,7 +704,7 @@ setlocal dictionary=
 setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
-setlocal noexpandtab
+setlocal expandtab
 if &filetype != 'sass'
 setlocal filetype=sass
 endif
@@ -779,6 +783,7 @@ exe s:l
 normal! zt
 159
 normal! 04|
+2wincmd w
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

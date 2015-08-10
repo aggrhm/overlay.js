@@ -427,38 +427,38 @@
 
 }).call(this);
 (function() {
-  View.prototype.showAsModal = function(tmp, opts) {
+  QS.View.prototype.showAsModal = function(tmp, opts) {
     opts || (opts = {});
     opts.view = this;
     opts.template = tmp;
     return Overlay.modal(opts);
   };
 
-  View.prototype.showAsOverlay = View.prototype.showAsModal;
+  QS.View.prototype.showAsOverlay = QS.View.prototype.showAsModal;
 
-  View.prototype.showAsPopover = function(el, tmp, opts) {
+  QS.View.prototype.showAsPopover = function(el, tmp, opts) {
     opts || (opts = {});
     opts.view = this;
     opts.template = tmp;
     return Overlay.popover(el, opts);
   };
 
-  View.prototype.repositionPopover = function() {
+  QS.View.prototype.repositionPopover = function() {
     return $(this.overlay_popover_element).trigger('reposition.overlay.popover');
   };
 
-  View.prototype.hideOverlay = function() {
+  QS.View.prototype.hideOverlay = function() {
     this.hideModal();
     return this.hidePopover();
   };
 
-  View.prototype.hidePopover = function() {
+  QS.View.prototype.hidePopover = function() {
     if (this.overlay_popover_element != null) {
       return $(this.overlay_popover_element).trigger('hide.overlay.popover');
     }
   };
 
-  View.prototype.hideModal = function() {
+  QS.View.prototype.hideModal = function() {
     if (this.overlay_modal_element != null) {
       return $(this.overlay_modal_element).trigger('hide.overlay.modal');
     }

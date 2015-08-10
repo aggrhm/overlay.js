@@ -1,24 +1,24 @@
 ## QuickScript Extensions
 
-View::showAsModal = (tmp, opts)->
+QS.View::showAsModal = (tmp, opts)->
 	opts ||= {}
 	opts.view = this
 	opts.template = tmp
 	Overlay.modal(opts)
-View::showAsOverlay = View::showAsModal
-View::showAsPopover = (el, tmp, opts)->
+QS.View::showAsOverlay = QS.View::showAsModal
+QS.View::showAsPopover = (el, tmp, opts)->
 	opts ||= {}
 	opts.view = this
 	opts.template = tmp
 	Overlay.popover(el, opts)
-View::repositionPopover = ->
+QS.View::repositionPopover = ->
 	$(@overlay_popover_element).trigger 'reposition.overlay.popover'
-View::hideOverlay = ->
+QS.View::hideOverlay = ->
 	@hideModal()
 	@hidePopover()
-View::hidePopover = ->
+QS.View::hidePopover = ->
 	$(@overlay_popover_element).trigger 'hide.overlay.popover' if @overlay_popover_element?
-View::hideModal = ->
+QS.View::hideModal = ->
 	$(@overlay_modal_element).trigger 'hide.overlay.modal' if @overlay_modal_element?
 
 
