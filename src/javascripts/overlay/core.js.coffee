@@ -247,7 +247,7 @@ Overlay.utils = {
 		return ret
 	availableZIndex : ->
 		idx = $('.modal.in, .popover').length
-		return 1040 + (idx * 10)
+		return 2000 + (idx * 10)
 	positionPopover : ($po)->
 		return if $po.length == 0
 		$arrow = $po.find('.arrow')

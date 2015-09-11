@@ -308,7 +308,7 @@
     availableZIndex: function() {
       var idx;
       idx = $('.modal.in, .popover').length;
-      return 1040 + (idx * 10);
+      return 2000 + (idx * 10);
     },
     positionPopover: function($po) {
       var $arrow, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, left, opts, pl, placement, po_h, po_w, top, win_h, win_w, _i, _len, _ref;
@@ -518,16 +518,17 @@
 
   ko.bindingHandlers.loadingOverlay = {
     update: function(element, valueAccessor) {
-      var is_loading;
+      var $el, is_loading;
+      $el = $(element);
       is_loading = ko.utils.unwrapObservable(valueAccessor());
       if (is_loading) {
-        if ($(element).children('.overlay-loading-inline').length === 0) {
-          return $(element).prepend("<div class='overlay-loading-inline'>" + (Overlay.templates.loading_overlay()) + "</div>");
+        if ($el.children('.overlay-loading-inline').length === 0) {
+          return $el.prepend("<div class='overlay-loading-inline'>" + (Overlay.templates.loading_overlay()) + "</div>");
+        } else {
+          return $el.children('.overlay-loading-inline').stop().show();
         }
       } else {
-        return $(element).children('.overlay-loading-inline').fadeOut('fast', (function() {
-          return $(this).remove();
-        }));
+        return $(element).children('.overlay-loading-inline').fadeOut('fast');
       }
     }
   };

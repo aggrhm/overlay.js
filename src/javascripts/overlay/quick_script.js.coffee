@@ -68,9 +68,13 @@ ko.bindingHandlers.tip =
 
 ko.bindingHandlers.loadingOverlay =
 	update : (element, valueAccessor) ->
+		$el = $(element)
 		is_loading = ko.utils.unwrapObservable(valueAccessor())
 		if is_loading
-			$(element).prepend("<div class='overlay-loading-inline'>#{Overlay.templates.loading_overlay()}</div>") if $(element).children('.overlay-loading-inline').length == 0
+			if $el.children('.overlay-loading-inline').length == 0
+				$el.prepend("<div class='overlay-loading-inline'>#{Overlay.templates.loading_overlay()}</div>")
+			else
+				$el.children('.overlay-loading-inline').stop().show()
 		else
-			$(element).children('.overlay-loading-inline').fadeOut('fast', (-> $(this).remove()))
+			$(element).children('.overlay-loading-inline').fadeOut('fast')
 
