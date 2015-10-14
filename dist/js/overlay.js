@@ -251,7 +251,7 @@
     container = opts.container === 'parent' ? $(el).parent() : document.body;
     setTimeout(function() {
       var zidx;
-      zidx = Overlay.utils.availableZIndex();
+      zidx = Overlay.utils.availableZIndex(el);
       $po.remove().css({
         top: 0,
         left: 0,
@@ -305,10 +305,23 @@
       ret.height = el.offsetHeight;
       return ret;
     },
-    availableZIndex: function() {
-      var idx;
-      idx = $('.modal.in, .popover').length;
-      return 2000 + (idx * 10);
+    availableZIndex: function(el) {
+      var idx, vals;
+      if (el == null) {
+        idx = $('.modal.in, .popover').length;
+        return 2000 + (idx * 10);
+      } else {
+        vals = $(el).parents().map(function() {
+          var val;
+          val = parseInt($(this).css('z-index'));
+          if (isNaN(val)) {
+            return 0;
+          } else {
+            return val;
+          }
+        });
+        return Math.max.apply(null, vals) + 10;
+      }
     },
     positionPopover: function($po) {
       var $arrow, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, left, opts, pl, placement, po_h, po_w, top, win_h, win_w, _i, _len, _ref;

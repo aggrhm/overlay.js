@@ -211,7 +211,7 @@ Overlay.popover = (el, opts)->
 	else
 		document.body
 	setTimeout ->
-		zidx = Overlay.utils.availableZIndex()
+		zidx = Overlay.utils.availableZIndex(el)
 		$po.remove().css({ top: 0, left: 0, display: 'block', width: opts.width, height: opts.height, 'z-index': zidx }).prependTo(container)
 		if opts.backdrop
 			$backdrop.css({'z-index': zidx-1})
@@ -245,9 +245,16 @@ Overlay.utils = {
 		ret.width = el.offsetWidth
 		ret.height = el.offsetHeight
 		return ret
-	availableZIndex : ->
-		idx = $('.modal.in, .popover').length
-		return 2000 + (idx * 10)
+	availableZIndex : (el)->
+		if !el?
+			idx = $('.modal.in, .popover').length
+			return 2000 + (idx * 10)
+		else
+			# determine largest z-index of parents
+			vals = $(el).parents().map ->
+				val = parseInt($(this).css('z-index'))
+				return if isNaN(val) then 0 else val
+			return Math.max.apply(null, vals) + 10
 	positionPopover : ($po)->
 		return if $po.length == 0
 		$arrow = $po.find('.arrow')
