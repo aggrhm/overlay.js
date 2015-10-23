@@ -209,7 +209,8 @@ Overlay.popover = (el, opts)->
 	container = if opts.container == 'parent'
 		$(el).parent()
 	else
-		document.body
+		$(document.body)
+	opts.$container = container
 	setTimeout ->
 		zidx = Overlay.utils.availableZIndex(el)
 		$po.remove().css({ top: 0, left: 0, display: 'block', width: opts.width, height: opts.height, 'z-index': zidx }).prependTo(container)
@@ -244,6 +245,8 @@ Overlay.utils = {
 		ret = $(el).offset()
 		ret.width = el.offsetWidth
 		ret.height = el.offsetHeight
+		ret.right = ret.left + ret.width
+		ret.bottom = ret.top + ret.height
 		return ret
 	availableZIndex : (el)->
 		if !el?
@@ -260,6 +263,7 @@ Overlay.utils = {
 		$arrow = $po.find('.arrow')
 		opts = $po.data('overlay.popover')
 		anchor = opts.anchor
+		$container = opts.$container
 		anchor_pos = Overlay.utils.getElementPosition(anchor)
 		an_t = anchor_pos.top
 		an_l = anchor_pos.left
@@ -267,8 +271,12 @@ Overlay.utils = {
 		an_h = anchor_pos.height
 		po_w = $po[0].offsetWidth
 		po_h = $po[0].offsetHeight
-		win_w = $(window).width()
-		win_h = $(window).height()
+		win_rect = Overlay.utils.getElementPosition(opts.$container[0])
+		if opts.container == 'body' && $(window).height() > win_rect.height
+			win_rect.height = $(window).height()
+			win_rect.bottom = win_rect.height
+
+		#QS.log "w = #{win_w} h = #{win_h}"
 		top = 0
 		left = 0
 
@@ -297,7 +305,7 @@ Overlay.utils = {
 						top = an_t + opts.top
 			
 			# check metrics
-			if pl == 'right' && (left + po_w) > win_w
+			if pl == 'right' && (left + po_w) > win_rect.right
 				continue
 			if pl == 'left' && (left < 0)
 				continue
@@ -305,12 +313,12 @@ Overlay.utils = {
 				break
 			
 		# fix top
-		if top < 0
-			top = 0
-		else if top + po_h > win_h
-			top = win_h - po_h
+		if top < win_rect.top
+			top = win_rect.top
+		else if top + po_h > win_rect.bottom
+			top = win_rect.bottom - po_h
 		# fix left
-		left = 0 if left < 0
+		left = win_rect.left if left < win_rect.left
 		
 		$po.offset({top: top, left: left}).addClass(placement).addClass('in')
 		ao_t = top - an_t

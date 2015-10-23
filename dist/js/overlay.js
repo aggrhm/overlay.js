@@ -248,7 +248,8 @@
     opts.anchor = el;
     $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
     $backdrop = $("<div class='popover-backdrop'></div>");
-    container = opts.container === 'parent' ? $(el).parent() : document.body;
+    container = opts.container === 'parent' ? $(el).parent() : $(document.body);
+    opts.$container = container;
     setTimeout(function() {
       var zidx;
       zidx = Overlay.utils.availableZIndex(el);
@@ -303,6 +304,8 @@
       ret = $(el).offset();
       ret.width = el.offsetWidth;
       ret.height = el.offsetHeight;
+      ret.right = ret.left + ret.width;
+      ret.bottom = ret.top + ret.height;
       return ret;
     },
     availableZIndex: function(el) {
@@ -324,13 +327,14 @@
       }
     },
     positionPopover: function($po) {
-      var $arrow, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, left, opts, pl, placement, po_h, po_w, top, win_h, win_w, _i, _len, _ref;
+      var $arrow, $container, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, left, opts, pl, placement, po_h, po_w, top, win_rect, _i, _len, _ref;
       if ($po.length === 0) {
         return;
       }
       $arrow = $po.find('.arrow');
       opts = $po.data('overlay.popover');
       anchor = opts.anchor;
+      $container = opts.$container;
       anchor_pos = Overlay.utils.getElementPosition(anchor);
       an_t = anchor_pos.top;
       an_l = anchor_pos.left;
@@ -338,8 +342,11 @@
       an_h = anchor_pos.height;
       po_w = $po[0].offsetWidth;
       po_h = $po[0].offsetHeight;
-      win_w = $(window).width();
-      win_h = $(window).height();
+      win_rect = Overlay.utils.getElementPosition(opts.$container[0]);
+      if (opts.container === 'body' && $(window).height() > win_rect.height) {
+        win_rect.height = $(window).height();
+        win_rect.bottom = win_rect.height;
+      }
       top = 0;
       left = 0;
       placement = null;
@@ -372,7 +379,7 @@
               top = an_t + opts.top;
             }
         }
-        if (pl === 'right' && (left + po_w) > win_w) {
+        if (pl === 'right' && (left + po_w) > win_rect.right) {
           continue;
         }
         if (pl === 'left' && (left < 0)) {
@@ -381,13 +388,13 @@
           break;
         }
       }
-      if (top < 0) {
-        top = 0;
-      } else if (top + po_h > win_h) {
-        top = win_h - po_h;
+      if (top < win_rect.top) {
+        top = win_rect.top;
+      } else if (top + po_h > win_rect.bottom) {
+        top = win_rect.bottom - po_h;
       }
-      if (left < 0) {
-        left = 0;
+      if (left < win_rect.left) {
+        left = win_rect.left;
       }
       $po.offset({
         top: top,
