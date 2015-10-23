@@ -325,4 +325,3 @@ Overlay.utils = {
 		if opts.top != 'center'
 			$arrow.css({top: Math.abs(ao_t) + an_h / 2})
 }
-	

@@ -327,7 +327,7 @@
       }
     },
     positionPopover: function($po) {
-      var $arrow, $container, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, left, opts, pl, placement, po_h, po_w, top, win_rect, _i, _len, _ref;
+      var $arrow, $container, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, i, left, len, opts, pl, placement, po_h, po_w, ref, top, win_rect;
       if ($po.length === 0) {
         return;
       }
@@ -350,9 +350,9 @@
       top = 0;
       left = 0;
       placement = null;
-      _ref = opts.placement.split(' ');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        pl = _ref[_i];
+      ref = opts.placement.split(' ');
+      for (i = 0, len = ref.length; i < len; i++) {
+        pl = ref[i];
         placement = pl;
         switch (pl) {
           case 'bottom':
@@ -410,6 +410,7 @@
   };
 
 }).call(this);
+
 (function() {
   var Modal;
 
@@ -446,6 +447,7 @@
   };
 
 }).call(this);
+
 (function() {
   QS.View.prototype.showAsModal = function(tmp, opts) {
     opts || (opts = {});
@@ -554,6 +556,3 @@
   };
 
 }).call(this);
-
-
-
