@@ -1,0 +1,24 @@
+{
+  "name": "overlay",
+  "version": "2.3.5",
+  "description": "A Javascript library for modals and popovers.",
+  "main": "Gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agquick/overlay.js.git"
+  },
+  "keywords": [
+    "overlay"
+  ],
+  "author": "Alan Graham",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-coffee": "^2.3.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-sass": "^2.0.4"
+  }
+}
