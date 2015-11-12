@@ -20,194 +20,9 @@
     }
   };
 
-  Overlay.closeDialog = function() {
-    return this.remove('dialog');
-  };
-
-  Overlay.modal = function(opts) {
-    var $modal_dialog, $modal_el, cls, css_opts, id, modal_tpl, template, tmp, vm;
-    vm = opts.view;
-    tmp = opts.template;
-    css_opts = opts.style || {};
-    cls = opts.className || '';
-    id = vm.name;
-    template = tmp;
-    $('#overlay-' + id).remove();
-    modal_tpl = "<div id='overlay-" + id + "' class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>&times;</button><div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
-    $modal_el = $(modal_tpl).appendTo('body');
-    $modal_dialog = $modal_el.find('.modal-dialog');
-    if (opts.width != null) {
-      $modal_dialog.css({
-        width: opts.width + 'px'
-      });
-    }
-    $modal_dialog.css(css_opts);
-    $modal_el.addClass(cls);
-    if (typeof opts.beforeBind === "function") {
-      opts.beforeBind($modal_el);
-    }
-    setTimeout(function() {
-      $modal_el.koBind(vm);
-      $modal_el.on('hidden.bs.modal', function(ev) {
-        if (ev.target.id !== ("overlay-" + id)) {
-          return;
-        }
-        console.log('Hiding overlay.');
-        setTimeout(function() {
-          $modal_el.koClean();
-          return $modal_el.remove();
-        }, 100);
-        vm.hide();
-        return vm.overlay_modal_element = null;
-      });
-      $modal_el.on('shown.bs.modal', function(ev) {
-        if (ev.target.id !== ("overlay-" + id)) {
-          return;
-        }
-        vm.show();
-        vm.overlay_modal_element = $modal_el[0];
-        if (opts.shown != null) {
-          return opts.shown;
-        }
-      });
-      $modal_el.on('hide.overlay.modal', function(ev) {
-        return $modal_el.modal('hide');
-      });
-      return $modal_el.modal(opts);
-    }, 100);
-    return $modal_el[0];
-  };
-
-  Overlay.dialog = function(msg, opts) {
-    var vm;
-    vm = {
-      name: 'dialog',
-      message: ko.observable(msg),
-      yes: opts.yes,
-      no: opts.no,
-      cancel: Overlay.remove('dialog')
-    };
-    return Overlay.modal({
-      view: vm,
-      template: 'view-dialog',
-      width: 300
-    });
-  };
-
-  Overlay.notify = function(msg, type, opts) {
-    var $notif;
-    opts = opts || {};
-    opts.timeout = opts.timeout || 3000;
-    opts.position = opts.position || 'right';
-    opts.message = msg;
-    opts.type = type = type || 'info';
-    Overlay.clearNotifications();
-    $('body').prepend("<div id='overlay-notify' class='overlay-notify " + type + " p-" + opts.position + "' style='display: none;'>" + (Overlay.templates.notify(opts)) + "</div>");
-    $notif = $('#overlay-notify');
-    if ((opts.css != null)) {
-      $notif.addClass(opts.css);
-    }
-    return $notif.fadeIn('slow', function() {
-      return Overlay.instance.notifyTimeout = setTimeout(function() {
-        return $notif.fadeOut('slow');
-      }, opts.timeout);
-    });
-  };
-
-  Overlay.clearNotifications = function() {
-    clearTimeout(Overlay.instance.notifyTimeout);
-    return $('#overlay-notify').remove();
-  };
-
-  Overlay.confirm = function(msg, opts) {
-    var $modal, tmp, vm;
-    opts.title || (opts.title = "Continue?");
-    vm = {
-      message: msg,
-      title: opts.title,
-      yes: function() {
-        $('#overlay-confirm').modal('hide');
-        if (opts.yes != null) {
-          return opts.yes();
-        }
-      },
-      no: function() {
-        $('#overlay-confirm').modal('hide');
-        if (opts.no != null) {
-          return opts.no();
-        }
-      },
-      yes_text: opts.yes_text || "Yes",
-      no_text: opts.no_text || "No"
-    };
-    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-default' data-bind='click : no, html : no_text'>No</button><button class='btn btn-success' data-bind='click : yes, html : yes_text'>Yes</button></div> </div> </div> </div>";
-    $modal = $('#overlay-confirm');
-    if ($modal.length === 0) {
-      $modal = $(tmp);
-      $modal.appendTo('body');
-    } else {
-      $modal.koClean();
-      $modal.removeClass('animated shake');
-    }
-    $modal.koBind(vm);
-    return $modal.modal({
-      backdrop: 'static',
-      attentionAnimation: 'shake'
-    });
-  };
-
-  Overlay.alert = function(msg, opts) {
-    var $modal, tmp, vm;
-    opts || (opts = {});
-    opts.title || (opts.title = "Alert!");
-    vm = {
-      message: msg,
-      title: opts.title,
-      ok: function() {
-        $('#overlay-alert').modal('hide');
-        if (opts.ok != null) {
-          return opts.ok();
-        }
-      }
-    };
-    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
-    $modal = $('#overlay-alert');
-    if ($modal.length === 0) {
-      $modal = $(tmp);
-      $modal.appendTo('body');
-    } else {
-      $modal.koClean();
-    }
-    $modal.koBind(vm);
-    return $modal.modal({
-      backdrop: 'static',
-      attentionAnimation: 'shake'
-    });
-  };
-
   Overlay.remove = function(id) {
     Overlay.removeModal(id);
     return Overlay.removePopover(id);
-  };
-
-  Overlay.removeModal = function(id) {
-    return $('#overlay-' + id).trigger('hide.overlay.modal');
-  };
-
-  Overlay.removePopover = function(id) {
-    var $po;
-    $po = $("#popover-" + id);
-    return $po.trigger('hide.overlay.popover');
-  };
-
-  Overlay.removePopovers = function() {
-    return $('.popover').each(function() {
-      return $(this).trigger('hide.overlay.popover');
-    });
-  };
-
-  Overlay.repositionPopover = function(id) {
-    return Overlay.utils.positionPopover($("#popover-" + id));
   };
 
   Overlay.isVisible = function(id) {
@@ -231,71 +46,6 @@
         return $overlay.remove();
       }
     });
-  };
-
-  Overlay.popover = function(el, opts) {
-    var $backdrop, $po, container, id, tmp, vm;
-    vm = opts.view;
-    tmp = opts.template;
-    id = vm.name;
-    opts.placement || (opts.placement = 'right');
-    opts.title || (opts.title = 'Options');
-    opts.width || (opts.width = 'auto');
-    opts.height || (opts.height = 'auto');
-    opts.container || (opts.container = 'body');
-    opts.top || (opts.top = -40);
-    opts.left || (opts.left = -40);
-    opts.anchor = el;
-    $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
-    $backdrop = $("<div class='popover-backdrop'></div>");
-    container = opts.container === 'parent' ? $(el).parent() : $(document.body);
-    opts.$container = container;
-    setTimeout(function() {
-      var zidx;
-      zidx = Overlay.utils.availableZIndex(el);
-      $po.remove().css({
-        top: 0,
-        left: 0,
-        display: 'block',
-        width: opts.width,
-        height: opts.height,
-        'z-index': zidx
-      }).prependTo(container);
-      if (opts.backdrop) {
-        $backdrop.css({
-          'z-index': zidx - 1
-        });
-        $backdrop.click(function() {
-          return $po.trigger('hide.overlay.popover');
-        });
-        $backdrop.prependTo(document.body);
-        opts.$backdrop = $backdrop;
-      }
-      if (opts.style != null) {
-        $po.css(opts.style);
-      }
-      if (opts.binding != null) {
-        $po.attr('data-bind', opts.binding);
-      }
-      $po.koBind(vm);
-      vm.overlay_popover_element = $po[0];
-      vm.show();
-      $po.click(function(ev) {
-        return ev.stopPropagation();
-      });
-      $po.on('hide.overlay.popover', function() {
-        vm.hide();
-        vm.overlay_popover_element = null;
-        $po.koClean().remove();
-        return $backdrop.remove();
-      });
-      $po.on('reposition.overlay.popover', function() {
-        return Overlay.utils.positionPopover($po);
-      });
-      $po.data('overlay.popover', opts);
-      return Overlay.utils.positionPopover($po);
-    }, 100);
-    return $po[0];
   };
 
   Overlay.utils = {
@@ -412,6 +162,324 @@
 }).call(this);
 
 (function() {
+  Overlay.modal = function(opts) {
+    var $modal_dialog, $modal_el, cls, css_opts, id, modal_tpl, template, tmp, vm;
+    vm = opts.view;
+    tmp = opts.template;
+    css_opts = opts.style || {};
+    cls = opts.className || '';
+    id = vm.name;
+    template = tmp;
+    $('#overlay-' + id).remove();
+    modal_tpl = "<div id='overlay-" + id + "' class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>&times;</button><div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
+    $modal_el = $(modal_tpl).appendTo('body');
+    $modal_dialog = $modal_el.find('.modal-dialog');
+    if (opts.width != null) {
+      $modal_dialog.css({
+        width: opts.width + 'px'
+      });
+    }
+    $modal_dialog.css(css_opts);
+    $modal_el.addClass(cls);
+    if (typeof opts.beforeBind === "function") {
+      opts.beforeBind($modal_el);
+    }
+    setTimeout(function() {
+      $modal_el.koBind(vm);
+      $modal_el.on('hidden.bs.modal', function(ev) {
+        if (ev.target.id !== ("overlay-" + id)) {
+          return;
+        }
+        console.log('Hiding overlay.');
+        setTimeout(function() {
+          $modal_el.koClean();
+          return $modal_el.remove();
+        }, 100);
+        vm.hide();
+        return vm.overlay_modal_element = null;
+      });
+      $modal_el.on('shown.bs.modal', function(ev) {
+        if (ev.target.id !== ("overlay-" + id)) {
+          return;
+        }
+        vm.show();
+        vm.overlay_modal_element = $modal_el[0];
+        if (opts.shown != null) {
+          return opts.shown;
+        }
+      });
+      $modal_el.on('hide.overlay.modal', function(ev) {
+        return $modal_el.modal('hide');
+      });
+      return $modal_el.modal(opts);
+    }, 100);
+    return $modal_el[0];
+  };
+
+  Overlay.removeModal = function(id) {
+    return $('#overlay-' + id).trigger('hide.overlay.modal');
+  };
+
+  Overlay.dialog = function(msg, opts) {
+    var vm;
+    vm = {
+      name: 'dialog',
+      message: ko.observable(msg),
+      yes: opts.yes,
+      no: opts.no,
+      cancel: Overlay.remove('dialog')
+    };
+    return Overlay.modal({
+      view: vm,
+      template: 'view-dialog',
+      width: 300
+    });
+  };
+
+  Overlay.closeDialog = function() {
+    return this.remove('dialog');
+  };
+
+  Overlay.confirm = function(msg, opts) {
+    var $modal, tmp, vm;
+    opts.title || (opts.title = "Continue?");
+    vm = {
+      message: msg,
+      title: opts.title,
+      yes: function() {
+        $('#overlay-confirm').modal('hide');
+        if (opts.yes != null) {
+          return opts.yes();
+        }
+      },
+      no: function() {
+        $('#overlay-confirm').modal('hide');
+        if (opts.no != null) {
+          return opts.no();
+        }
+      },
+      yes_text: opts.yes_text || "Yes",
+      no_text: opts.no_text || "No"
+    };
+    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-default' data-bind='click : no, html : no_text'>No</button><button class='btn btn-success' data-bind='click : yes, html : yes_text'>Yes</button></div> </div> </div> </div>";
+    $modal = $('#overlay-confirm');
+    if ($modal.length === 0) {
+      $modal = $(tmp);
+      $modal.appendTo('body');
+    } else {
+      $modal.koClean();
+      $modal.removeClass('animated shake');
+    }
+    $modal.koBind(vm);
+    return $modal.modal({
+      backdrop: 'static',
+      attentionAnimation: 'shake'
+    });
+  };
+
+  Overlay.alert = function(msg, opts) {
+    var $modal, tmp, vm;
+    opts || (opts = {});
+    opts.title || (opts.title = "Alert!");
+    vm = {
+      message: msg,
+      title: opts.title,
+      ok: function() {
+        $('#overlay-alert').modal('hide');
+        if (opts.ok != null) {
+          return opts.ok();
+        }
+      }
+    };
+    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
+    $modal = $('#overlay-alert');
+    if ($modal.length === 0) {
+      $modal = $(tmp);
+      $modal.appendTo('body');
+    } else {
+      $modal.koClean();
+    }
+    $modal.koBind(vm);
+    return $modal.modal({
+      backdrop: 'static',
+      attentionAnimation: 'shake'
+    });
+  };
+
+}).call(this);
+
+(function() {
+  Overlay.notify = function(msg, type, opts) {
+    var $notif;
+    opts = opts || {};
+    opts.timeout = opts.timeout || 3000;
+    opts.position = opts.position || 'right';
+    opts.message = msg;
+    opts.type = type = type || 'info';
+    Overlay.clearNotifications();
+    $('body').prepend("<div id='overlay-notify' class='overlay-notify " + type + " p-" + opts.position + "' style='display: none;'>" + (Overlay.templates.notify(opts)) + "</div>");
+    $notif = $('#overlay-notify');
+    if ((opts.css != null)) {
+      $notif.addClass(opts.css);
+    }
+    return $notif.fadeIn('slow', function() {
+      return Overlay.instance.notifyTimeout = setTimeout(function() {
+        return $notif.fadeOut('slow');
+      }, opts.timeout);
+    });
+  };
+
+  Overlay.clearNotifications = function() {
+    clearTimeout(Overlay.instance.notifyTimeout);
+    return $('#overlay-notify').remove();
+  };
+
+  Overlay.toast = function(msg, opts) {
+    var $parent, $toast, $win, padding, pos, position, pr, th, timeout, tw, wh, ww;
+    if (opts == null) {
+      opts = {};
+    }
+    position = opts.position || 'bottom right';
+    padding = opts.padding || 20;
+    timeout = opts.timeout || 3000;
+    $toast = $("<div id='overlay-toast' class='overlay-toast animated' style='opacity: 0;'>" + msg + "</div>");
+    if (opts.className != null) {
+      $toast.addClass(opts.className);
+    }
+    if (opts.container != null) {
+      $parent = $(opts.container);
+      pr = Overlay.utils.getElementPosition(opts.container);
+    } else {
+      $parent = $('body');
+      $win = $(window);
+      ww = $(window).width();
+      wh = $(window).height();
+      pr = {
+        top: 0,
+        left: 0,
+        width: ww,
+        height: wh,
+        right: ww,
+        bottom: wh
+      };
+    }
+    $toast.appendTo('body');
+    tw = $toast.outerWidth();
+    th = $toast.outerHeight();
+    pos = {};
+    if (position === 'center') {
+      pos.left = pr.width / 2 - tw / 2;
+      pos.top = pr.height / 2 - th / 2;
+    } else {
+      if (position.includes('left')) {
+        pos.left = pr.left + padding;
+      } else {
+        pos.right = pr.right + padding;
+      }
+      if (position.includes('top')) {
+        pos.top = pr.top + padding;
+      } else {
+        pos.bottom = pr.bottom + padding;
+      }
+    }
+    pos['z-index'] = Overlay.utils.availableZIndex($parent[0]);
+    $toast.css(pos);
+    $toast.addClass('fadeInUp');
+    return setTimeout(function() {
+      $toast.addClass('fadeOutDown');
+      return setTimeout((function() {
+        return $toast.remove();
+      }), 1000);
+    }, timeout);
+  };
+
+}).call(this);
+
+(function() {
+  Overlay.popover = function(el, opts) {
+    var $backdrop, $po, container, id, tmp, vm;
+    vm = opts.view;
+    tmp = opts.template;
+    id = vm.name;
+    opts.placement || (opts.placement = 'right');
+    opts.title || (opts.title = 'Options');
+    opts.width || (opts.width = 'auto');
+    opts.height || (opts.height = 'auto');
+    opts.container || (opts.container = 'body');
+    opts.top || (opts.top = -40);
+    opts.left || (opts.left = -40);
+    opts.anchor = el;
+    $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
+    $backdrop = $("<div class='popover-backdrop'></div>");
+    container = opts.container === 'parent' ? $(el).parent() : $(document.body);
+    opts.$container = container;
+    setTimeout(function() {
+      var zidx;
+      zidx = Overlay.utils.availableZIndex(el);
+      $po.remove().css({
+        top: 0,
+        left: 0,
+        display: 'block',
+        width: opts.width,
+        height: opts.height,
+        'z-index': zidx
+      }).prependTo(container);
+      if (opts.backdrop) {
+        $backdrop.css({
+          'z-index': zidx - 1
+        });
+        $backdrop.click(function() {
+          return $po.trigger('hide.overlay.popover');
+        });
+        $backdrop.prependTo(document.body);
+        opts.$backdrop = $backdrop;
+      }
+      if (opts.style != null) {
+        $po.css(opts.style);
+      }
+      if (opts.binding != null) {
+        $po.attr('data-bind', opts.binding);
+      }
+      $po.koBind(vm);
+      vm.overlay_popover_element = $po[0];
+      vm.show();
+      $po.click(function(ev) {
+        return ev.stopPropagation();
+      });
+      $po.on('hide.overlay.popover', function() {
+        vm.hide();
+        vm.overlay_popover_element = null;
+        $po.koClean().remove();
+        return $backdrop.remove();
+      });
+      $po.on('reposition.overlay.popover', function() {
+        return Overlay.utils.positionPopover($po);
+      });
+      $po.data('overlay.popover', opts);
+      return Overlay.utils.positionPopover($po);
+    }, 100);
+    return $po[0];
+  };
+
+  Overlay.removePopover = function(id) {
+    var $po;
+    $po = $("#popover-" + id);
+    return $po.trigger('hide.overlay.popover');
+  };
+
+  Overlay.removePopovers = function() {
+    return $('.popover').each(function() {
+      return $(this).trigger('hide.overlay.popover');
+    });
+  };
+
+  Overlay.repositionPopover = function(id) {
+    return Overlay.utils.positionPopover($("#popover-" + id));
+  };
+
+}).call(this);
+
+(function() {
   var Modal;
 
   Modal = jQuery.fn.modal.Constructor;
@@ -486,6 +554,14 @@
     }
   };
 
+  QS.View.prototype.showToast = function(msg, opts) {
+    if (opts == null) {
+      opts = {};
+    }
+    opts.container || (opts.container = this.element);
+    return Overlay.toast(msg, opts);
+  };
+
   ko.bindingHandlers.popover = {
     init: function(element, valueAccessor, bindingsAccessor, viewModel) {
       var opts;
@@ -505,7 +581,7 @@
       opts.placement || (opts.placement = 'bottom');
       opts.html = opts.html || (opts.template_id != null) || false;
       opts.title || (opts.title = content);
-      opts.container = 'body';
+      opts.container || (opts.container = 'body');
       $(element).tooltip(opts);
       tip = $(element).data('bs.tooltip');
       $tip_el = tip.tip();

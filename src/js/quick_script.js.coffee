@@ -20,6 +20,9 @@ QS.View::hidePopover = ->
 	$(@overlay_popover_element).trigger 'hide.overlay.popover' if @overlay_popover_element?
 QS.View::hideModal = ->
 	$(@overlay_modal_element).trigger 'hide.overlay.modal' if @overlay_modal_element?
+QS.View::showToast = (msg, opts={})->
+	opts.container ||= @element
+	Overlay.toast(msg, opts)
 
 
 # popover : {template : <tmp>, placement : <pos>}
@@ -42,7 +45,7 @@ ko.bindingHandlers.tip =
 		opts.placement ||= 'bottom'
 		opts.html = opts.html || opts.template_id? || false
 		opts.title ||= content
-		opts.container = 'body'
+		opts.container ||= 'body'
 		$(element).tooltip(opts)
 		tip = $(element).data('bs.tooltip')
 		$tip_el = tip.tip()

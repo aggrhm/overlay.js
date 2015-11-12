@@ -10,6 +10,9 @@ gulp.task('build', ['js', 'css']);
 gulp.task('js', function() {
 	return gulp.src([
 			'./src/js/core.js.coffee',
+			'./src/js/modal.js.coffee',
+			'./src/js/notify.js.coffee',
+			'./src/js/popover.js.coffee',
 			'./src/js/bootstrap.js.coffee',
 			'./src/js/quick_script.js.coffee',
 		])
