@@ -9,6 +9,7 @@ Overlay.instance = new Overlay()
 Overlay.templates =
 	loading_overlay : (opts)-> "<div class='overlay-spinner-1'></div>"
 	notify : (opts)-> "<div class='message'>#{opts.message}</div>"
+	modal_close_button_content: "&times;"
 
 Overlay.remove = (id) ->
 	Overlay.removeModal(id)
