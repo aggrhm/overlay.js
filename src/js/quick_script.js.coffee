@@ -57,7 +57,8 @@ ko.bindingHandlers.tip =
 			if opts.template_id?
 				# do nothing
 			else
-				$tip_el.find('.tooltip-inner').text(content)
+				etfn = if (opts.html == true) then 'html' else 'text'
+				$tip_el.find('.tooltip-inner')[etfn](content)
 		$tip_el.koBind(viewModel)
 		ko.utils.domNodeDisposal.addDisposeCallback element, ->
 			$tip_el.koClean()

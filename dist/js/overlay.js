@@ -592,6 +592,7 @@
       }
       tip.setContent();
       tip.setContent = function(content) {
+        var etfn;
         if (content == null) {
           return;
         }
@@ -599,7 +600,8 @@
         if (opts.template_id != null) {
 
         } else {
-          return $tip_el.find('.tooltip-inner').text(content);
+          etfn = opts.html === true ? 'html' : 'text';
+          return $tip_el.find('.tooltip-inner')[etfn](content);
         }
       };
       $tip_el.koBind(viewModel);

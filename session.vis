@@ -34,6 +34,7 @@ nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(expand((exists("g:netrw
 map <D-]> :tabn
 map <D-[> :tabp
 vmap <BS> "-d
+map Û :tabp
 map Ý :tabn
 map Û :tabp
 imap \\p <?php  ?><Left><Left><Left>
@@ -65,7 +66,7 @@ set softtabstop=2
 set tabstop=2
 set tags=/osi/common/vob/tags,./tags
 set termencoding=utf-8
-set window=64
+set window=60
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -74,27 +75,28 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
+badd +1 session.vis
 badd +1 package.json
 badd +1 node_modules/gulp/package.json
-badd +0 gulpfile.js
+badd +1 gulpfile.js
 badd +1 src/js/overlay.js
-badd +0 src/css/overlay.css
-badd +0 .gitignore
+badd +1 src/css/overlay.css
+badd +1 .gitignore
 badd +415 dist/js/overlay.js
 badd +147 dist/css/overlay.css
-badd +0 bower.json
-badd +169 src/js/core.js.coffee
+badd +1 bower.json
+badd +1 src/js/core.js.coffee
 badd +165 src/css/core.css.sass
 badd +45 src/js/quick_script.js.coffee
-badd +42 src/js/modal.js.coffee
-badd +31 src/js/popover.js.coffee
+badd +13 src/js/modal.js.coffee
+badd +69 src/js/popover.js.coffee
 badd +1 src/js/dialog.js.coffee
 badd +64 src/js/notify.js.coffee
 argglobal
 silent! argdel *
 argadd package.json
-set lines=65 columns=159
-winpos 456 229
+set lines=61 columns=159
+winpos 456 27
 set stal=2
 edit package.json
 set splitbelow splitright
@@ -106,8 +108,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 18 + 32) / 65)
-exe '2resize ' . ((&lines * 43 + 32) / 65)
+exe '1resize ' . ((&lines * 18 + 30) / 61)
+exe '2resize ' . ((&lines * 39 + 30) / 61)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -332,15 +334,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 3 - ((2 * winheight(0) + 21) / 43)
+let s:l = 3 - ((2 * winheight(0) + 19) / 39)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 3
 normal! 019|
 wincmd w
-exe '1resize ' . ((&lines * 18 + 32) / 65)
-exe '2resize ' . ((&lines * 43 + 32) / 65)
+exe '1resize ' . ((&lines * 18 + 30) / 61)
+exe '2resize ' . ((&lines * 39 + 30) / 61)
 tabedit gulpfile.js
 set splitbelow splitright
 set nosplitbelow
@@ -455,7 +457,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 14 - ((13 * winheight(0) + 31) / 63)
+let s:l = 14 - ((12 * winheight(0) + 29) / 59)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -476,9 +478,9 @@ set nosplitright
 wincmd t
 set winheight=1 winwidth=1
 exe 'vert 1resize ' . ((&columns * 85 + 79) / 159)
-exe '2resize ' . ((&lines * 18 + 32) / 65)
+exe '2resize ' . ((&lines * 29 + 30) / 61)
 exe 'vert 2resize ' . ((&columns * 73 + 79) / 159)
-exe '3resize ' . ((&lines * 43 + 32) / 65)
+exe '3resize ' . ((&lines * 28 + 30) / 61)
 exe 'vert 3resize ' . ((&columns * 73 + 79) / 159)
 argglobal
 setlocal keymap=
@@ -588,12 +590,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 57 - ((27 * winheight(0) + 31) / 62)
+let s:l = 11 - ((10 * winheight(0) + 29) / 58)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-57
-normal! 025|
+11
+normal! 03|
 wincmd w
 argglobal
 edit src/js/modal.js.coffee
@@ -704,15 +706,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 24 - ((10 * winheight(0) + 9) / 18)
+let s:l = 24 - ((15 * winheight(0) + 14) / 29)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 24
-normal! 0
+normal! 017|
 wincmd w
 argglobal
-edit src/js/popover.js.coffee
+edit src/js/notify.js.coffee
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -777,7 +779,7 @@ setlocal nolisp
 setlocal lispwords=
 setlocal nolist
 setlocal nomacmeta
-setlocal makeprg=coffee\ -c\ \ \ $*\ popover.js.coffee
+setlocal makeprg=coffee\ -c\ \ \ $*\ notify.js.coffee
 setlocal matchpairs=(:),{:},[:]
 setlocal modeline
 setlocal modifiable
@@ -820,18 +822,17 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 69 - ((14 * winheight(0) + 21) / 43)
+let s:l = 1 - ((0 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-69
+1
 normal! 0
 wincmd w
-2wincmd w
 exe 'vert 1resize ' . ((&columns * 85 + 79) / 159)
-exe '2resize ' . ((&lines * 18 + 32) / 65)
+exe '2resize ' . ((&lines * 29 + 30) / 61)
 exe 'vert 2resize ' . ((&columns * 73 + 79) / 159)
-exe '3resize ' . ((&lines * 43 + 32) / 65)
+exe '3resize ' . ((&lines * 28 + 30) / 61)
 exe 'vert 3resize ' . ((&columns * 73 + 79) / 159)
 tabedit src/js/quick_script.js.coffee
 set splitbelow splitright
@@ -947,12 +948,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 26 - ((25 * winheight(0) + 31) / 63)
+let s:l = 55 - ((30 * winheight(0) + 29) / 59)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-26
-normal! 0
+55
+normal! 025|
 tabedit src/css/core.css.sass
 set splitbelow splitright
 set nosplitbelow
@@ -1067,13 +1068,13 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 174 - ((53 * winheight(0) + 31) / 63)
+let s:l = 174 - ((50 * winheight(0) + 29) / 59)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 174
 normal! 017|
-tabnext 3
+tabnext 4
 set stal=1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
