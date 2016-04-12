@@ -37,37 +37,44 @@ ko.bindingHandlers.popover =
 ko.bindingHandlers.tip =
 	init : (element, valueAccessor, bindingsAccessor, viewModel, bindingContext) ->
 		opts = ko.unwrap(valueAccessor())
+		$el = $(element)
 		#html = ko.bindingHandlers.tip.getContent(element, opts, viewModel)
-		content = if opts.template_id?
-			"<div data-bind=\"template : '#{opts.template_id}'\"></div>"
-		else
-			opts.content
-		opts.placement ||= 'bottom'
-		opts.html = opts.html || opts.template_id? || false
-		opts.title ||= content
-		opts.container ||= 'body'
-		$(element).tooltip(opts)
-		tip = $(element).data('bs.tooltip')
-		$tip_el = tip.tip()
-		$tip_el.addClass(opts.className) if opts.className?
-		tip.setContent()
-		tip.setContent = (content)->		# set content does nothing now
-			return if !content?
-			tip.options.title = content
-			if opts.template_id?
-				# do nothing
+		buildTip = ->
+			content = if opts.template_id?
+				"<div data-bind=\"template : '#{opts.template_id}'\"></div>"
 			else
-				etfn = if (opts.html == true) then 'html' else 'text'
-				$tip_el.find('.tooltip-inner')[etfn](content)
-		$tip_el.koBind(viewModel)
+				opts.content
+			opts.placement ||= 'bottom'
+			opts.html = opts.html || opts.template_id? || false
+			opts.title ||= content
+			opts.container ||= 'body'
+			$el.tooltip(opts)
+			tip = $el.data('bs.tooltip')
+			$tip_el = tip.tip()
+			$tip_el.addClass(opts.className) if opts.className?
+			tip.setContent()
+			tip.setContent = (content)->		# set content does nothing now
+				return if !content?
+				tip.options.title = content
+				if opts.template_id?
+					# do nothing
+				else
+					etfn = if (opts.html == true) then 'html' else 'text'
+					$tip_el.find('.tooltip-inner')[etfn](content)
+			$tip_el.koBind(viewModel)
+			tip.show()
+			ko.utils.domNodeDisposal.addDisposeCallback element, ->
+				$tip_el.koClean()
+				tip.destroy()
+		$el.on 'mouseover', ->
+			buildTip() unless $el.data('bs.tooltip')?
 		ko.utils.domNodeDisposal.addDisposeCallback element, ->
-			$tip_el.koClean()
-			tip.destroy()
-
+			$el.off('mouseover')
 	update : (element, valueAccessor, bindingsAccessor, viewModel, bindingContext) ->
 		opts = ko.unwrap(valueAccessor())
 		tip = $(element).data('bs.tooltip')
-		tip.setContent(opts.content)
+		if tip?
+			tip.setContent(opts.content)
 
 
 ko.bindingHandlers.loadingOverlay =

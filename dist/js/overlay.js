@@ -577,44 +577,59 @@
 
   ko.bindingHandlers.tip = {
     init: function(element, valueAccessor, bindingsAccessor, viewModel, bindingContext) {
-      var $tip_el, content, opts, tip;
+      var $el, buildTip, opts;
       opts = ko.unwrap(valueAccessor());
-      content = opts.template_id != null ? "<div data-bind=\"template : '" + opts.template_id + "'\"></div>" : opts.content;
-      opts.placement || (opts.placement = 'bottom');
-      opts.html = opts.html || (opts.template_id != null) || false;
-      opts.title || (opts.title = content);
-      opts.container || (opts.container = 'body');
-      $(element).tooltip(opts);
-      tip = $(element).data('bs.tooltip');
-      $tip_el = tip.tip();
-      if (opts.className != null) {
-        $tip_el.addClass(opts.className);
-      }
-      tip.setContent();
-      tip.setContent = function(content) {
-        var etfn;
-        if (content == null) {
-          return;
+      $el = $(element);
+      buildTip = function() {
+        var $tip_el, content, tip;
+        content = opts.template_id != null ? "<div data-bind=\"template : '" + opts.template_id + "'\"></div>" : opts.content;
+        opts.placement || (opts.placement = 'bottom');
+        opts.html = opts.html || (opts.template_id != null) || false;
+        opts.title || (opts.title = content);
+        opts.container || (opts.container = 'body');
+        $el.tooltip(opts);
+        tip = $el.data('bs.tooltip');
+        $tip_el = tip.tip();
+        if (opts.className != null) {
+          $tip_el.addClass(opts.className);
         }
-        tip.options.title = content;
-        if (opts.template_id != null) {
+        tip.setContent();
+        tip.setContent = function(content) {
+          var etfn;
+          if (content == null) {
+            return;
+          }
+          tip.options.title = content;
+          if (opts.template_id != null) {
 
-        } else {
-          etfn = opts.html === true ? 'html' : 'text';
-          return $tip_el.find('.tooltip-inner')[etfn](content);
-        }
+          } else {
+            etfn = opts.html === true ? 'html' : 'text';
+            return $tip_el.find('.tooltip-inner')[etfn](content);
+          }
+        };
+        $tip_el.koBind(viewModel);
+        tip.show();
+        return ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          $tip_el.koClean();
+          return tip.destroy();
+        });
       };
-      $tip_el.koBind(viewModel);
+      $el.on('mouseover', function() {
+        if ($el.data('bs.tooltip') == null) {
+          return buildTip();
+        }
+      });
       return ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        $tip_el.koClean();
-        return tip.destroy();
+        return $el.off('mouseover');
       });
     },
     update: function(element, valueAccessor, bindingsAccessor, viewModel, bindingContext) {
       var opts, tip;
       opts = ko.unwrap(valueAccessor());
       tip = $(element).data('bs.tooltip');
-      return tip.setContent(opts.content);
+      if (tip != null) {
+        return tip.setContent(opts.content);
+      }
     }
   };
 
