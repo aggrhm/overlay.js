@@ -187,7 +187,10 @@
       opts.beforeBind($modal_el);
     }
     setTimeout(function() {
-      $modal_el.koBind(vm);
+      var context, root_context;
+      root_context = ko.contextFor($('body')[0]);
+      context = root_context.createChildContext(vm, '$view');
+      $modal_el.koBind(context);
       $modal_el.on('hidden.bs.modal', function(ev) {
         if (ev.target.id !== ("overlay-" + id)) {
           return;
@@ -562,6 +565,17 @@
     }
     opts.container || (opts.container = this.element);
     return Overlay.toast(msg, opts);
+  };
+
+  QS.View.displayModal = function(owner, opts) {
+    var ov, ov_opts;
+    if (opts == null) {
+      opts = {};
+    }
+    ov = new this('view-modal', owner, opts.model, opts);
+    ov.load(opts);
+    ov_opts = ov.modalOptions || ov.overlayOptions || {};
+    return ov.showAsModal(ov.templateID, ov_opts);
   };
 
   ko.bindingHandlers.popover = {

@@ -17,7 +17,9 @@ Overlay.modal = (opts) ->
 		opts.beforeBind?($modal_el)
 		#$('#overlay-' + id).css({'margin-left' : -1 * $('#overlay-' + id).width() / 2})
 		setTimeout ->
-			$modal_el.koBind(vm)
+			root_context = ko.contextFor($('body')[0])
+			context = root_context.createChildContext(vm, '$view')
+			$modal_el.koBind(context)
 			$modal_el.on 'hidden.bs.modal', (ev)->
 				return if ev.target.id != "overlay-#{id}"
 				console.log 'Hiding overlay.'

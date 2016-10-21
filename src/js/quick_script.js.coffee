@@ -23,6 +23,11 @@ QS.View::hideModal = ->
 QS.View::showToast = (msg, opts={})->
 	opts.container ||= @element
 	Overlay.toast(msg, opts)
+QS.View.displayModal = (owner, opts={})->
+	ov = new this('view-modal', owner, opts.model, opts)
+	ov.load(opts)
+	ov_opts = ov.modalOptions || ov.overlayOptions || {}
+	ov.showAsModal ov.templateID, ov_opts
 
 
 # popover : {template : <tmp>, placement : <pos>}
