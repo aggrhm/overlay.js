@@ -48,6 +48,8 @@ Overlay.utils = {
 				val = parseInt($(this).css('z-index'))
 				return if isNaN(val) then 0 else val
 			return Math.max.apply(null, vals) + 10
+	isModalOpen : ->
+		$('.modal.in').length > 0
 	positionPopover : ($po)->
 		return if $po.length == 0
 		$arrow = $po.find('.arrow')

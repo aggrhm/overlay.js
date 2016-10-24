@@ -77,6 +77,9 @@
         return Math.max.apply(null, vals) + 10;
       }
     },
+    isModalOpen: function() {
+      return $('.modal.in').length > 0;
+    },
     positionPopover: function($po) {
       var $arrow, $container, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, i, left, len, opts, pl, placement, po_h, po_w, ref, top, win_rect;
       if ($po.length === 0) {
@@ -510,7 +513,6 @@
         if (ev.target !== ev.currentTarget) {
           return;
         }
-        console.log('handling click');
         self.$element.removeClass("animated " + anim);
         return setTimeout(function() {
           return self.$element.addClass("animated " + anim);
@@ -518,6 +520,17 @@
       });
     }
   };
+
+  $(document).on('hidden.bs.modal', '.modal', function() {
+    return setTimeout(function() {
+      if (!Overlay.utils.isModalOpen()) {
+        return $(document.body).removeClass('modal-open');
+      } else {
+        QS.log('adding modal class back');
+        return $(document.body).addClass('modal-open');
+      }
+    }, 50);
+  });
 
 }).call(this);
 

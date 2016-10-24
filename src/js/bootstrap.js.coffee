@@ -18,9 +18,18 @@ Modal.prototype.show = (_relatedTarget)->
 		anim = this.options.attentionAnimation
 		this.$element.on 'click.dismiss.modal', (ev)->
 			return if ev.target != ev.currentTarget
-			console.log 'handling click'
 			self.$element.removeClass("animated #{anim}")
 
 			setTimeout ->
 				self.$element.addClass("animated #{anim}")
 			, 10
+
+# fix body css class
+$(document).on 'hidden.bs.modal', '.modal', ->
+	setTimeout ->
+		if !Overlay.utils.isModalOpen()
+			$(document.body).removeClass 'modal-open'
+		else
+			QS.log 'adding modal class back'
+			$(document.body).addClass 'modal-open'
+	, 50
