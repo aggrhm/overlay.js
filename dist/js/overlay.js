@@ -581,11 +581,12 @@
   };
 
   QS.View.displayModal = function(owner, opts) {
-    var ov, ov_opts;
+    var dvn, ov, ov_opts;
     if (opts == null) {
       opts = {};
     }
-    ov = new this('view-modal', owner, opts.model, opts);
+    dvn = this.name + "-" + (Date.now());
+    ov = new this(dvn, owner, opts.model, opts);
     ov.load(opts);
     ov_opts = ov.modalOptions || ov.overlayOptions || {};
     return ov.showAsModal(ov.templateID, ov_opts);
