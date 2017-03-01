@@ -589,7 +589,8 @@
     ov = new this(dvn, owner, opts.model, opts);
     ov.load(opts);
     ov_opts = ov.modalOptions || ov.overlayOptions || {};
-    return ov.showAsModal(ov.templateID, ov_opts);
+    ov.showAsModal(ov.templateID, ov_opts);
+    return ov;
   };
 
   ko.bindingHandlers.popover = {

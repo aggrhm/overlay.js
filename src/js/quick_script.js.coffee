@@ -29,6 +29,7 @@ QS.View.displayModal = (owner, opts={})->
 	ov.load(opts)
 	ov_opts = ov.modalOptions || ov.overlayOptions || {}
 	ov.showAsModal ov.templateID, ov_opts
+	return ov
 
 
 # popover : {template : <tmp>, placement : <pos>}
