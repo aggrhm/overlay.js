@@ -176,7 +176,11 @@
     template = tmp;
     close_btn_html = opts.close_button_content || Overlay.templates.modal_close_button_content;
     $('#overlay-' + id).remove();
-    modal_tpl = "<div id='overlay-" + id + "' class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>" + close_btn_html + "</button><div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
+    if (opts.containerTemplate != null) {
+      modal_tpl = opts.containerTemplate;
+    } else {
+      modal_tpl = "<div class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>" + close_btn_html + "</button><div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
+    }
     $modal_el = $(modal_tpl).appendTo('body');
     $modal_dialog = $modal_el.find('.modal-dialog');
     if (opts.width != null) {
@@ -186,6 +190,7 @@
     }
     $modal_dialog.css(css_opts);
     $modal_el.addClass(cls);
+    $modal_el.attr('id', "overlay-" + id);
     if (typeof opts.beforeBind === "function") {
       opts.beforeBind($modal_el);
     }
