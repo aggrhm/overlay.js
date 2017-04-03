@@ -30,6 +30,13 @@ QS.View.displayModal = (owner, opts={})->
 	ov_opts = ov.modalOptions || ov.overlayOptions || {}
 	ov.showAsModal ov.templateID, ov_opts
 	return ov
+QS.View.displayPopover = (el, owner, opts={})->
+	dvn = "#{this.name}-#{Date.now()}"
+	ov = new this(dvn, owner, opts.model, opts)
+	ov.load(opts)
+	ov_opts = $.extend({}, (ov.popoverOptions || {}), (opts.popoverOptions || {}))
+	ov.showAsPopover(el, ov.templateID, ov_opts)
+
 
 
 # popover : {template : <tmp>, placement : <pos>}

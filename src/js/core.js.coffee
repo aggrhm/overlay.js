@@ -32,11 +32,15 @@ Overlay.hide_loading = ->
 
 Overlay.utils = {
 	getElementPosition: (el)->
-		ret = $(el).offset()
-		ret.width = el.offsetWidth
-		ret.height = el.offsetHeight
-		ret.right = ret.left + ret.width
-		ret.bottom = ret.top + ret.height
+		if el.getBoundingClientRect?
+			rect = el.getBoundingClientRect()
+			ret = {width: rect.width, height: rect.height, top: rect.top, left: rect.left, bottom: rect.bottom, right: rect.right}
+		else
+			ret = $(el).offset()
+			ret.width = el.offsetWidth
+			ret.height = el.offsetHeight
+			ret.right = ret.left + ret.width
+			ret.bottom = ret.top + ret.height
 		return ret
 	availableZIndex : (el)->
 		if !el?
@@ -64,9 +68,10 @@ Overlay.utils = {
 		po_w = $po[0].offsetWidth
 		po_h = $po[0].offsetHeight
 		win_rect = Overlay.utils.getElementPosition(opts.$container[0])
-		if opts.container == 'body' && $(window).height() > win_rect.height
-			win_rect.height = $(window).height()
-			win_rect.bottom = win_rect.height
+		screen_height = $(window).height()
+		if opts.container == 'body' && screen_height > win_rect.height
+			win_rect.height = screen_height
+			win_rect.bottom = screen_height
 
 		#QS.log "w = #{win_w} h = #{win_h}"
 		top = 0
@@ -113,7 +118,4 @@ Overlay.utils = {
 		left = win_rect.left if left < win_rect.left
 		
 		$po.offset({top: top, left: left}).addClass(placement).addClass('in')
-		ao_t = top - an_t
-		if opts.top != 'center'
-			$arrow.css({top: Math.abs(ao_t) + an_h / 2})
 }

@@ -51,12 +51,24 @@
 
   Overlay.utils = {
     getElementPosition: function(el) {
-      var ret;
-      ret = $(el).offset();
-      ret.width = el.offsetWidth;
-      ret.height = el.offsetHeight;
-      ret.right = ret.left + ret.width;
-      ret.bottom = ret.top + ret.height;
+      var rect, ret;
+      if (el.getBoundingClientRect != null) {
+        rect = el.getBoundingClientRect();
+        ret = {
+          width: rect.width,
+          height: rect.height,
+          top: rect.top,
+          left: rect.left,
+          bottom: rect.bottom,
+          right: rect.right
+        };
+      } else {
+        ret = $(el).offset();
+        ret.width = el.offsetWidth;
+        ret.height = el.offsetHeight;
+        ret.right = ret.left + ret.width;
+        ret.bottom = ret.top + ret.height;
+      }
       return ret;
     },
     availableZIndex: function(el) {
@@ -81,7 +93,7 @@
       return $('.modal.in').length > 0;
     },
     positionPopover: function($po) {
-      var $arrow, $container, an_h, an_l, an_t, an_w, anchor, anchor_pos, ao_t, i, left, len, opts, pl, placement, po_h, po_w, ref, top, win_rect;
+      var $arrow, $container, an_h, an_l, an_t, an_w, anchor, anchor_pos, i, left, len, opts, pl, placement, po_h, po_w, ref, screen_height, top, win_rect;
       if ($po.length === 0) {
         return;
       }
@@ -97,9 +109,10 @@
       po_w = $po[0].offsetWidth;
       po_h = $po[0].offsetHeight;
       win_rect = Overlay.utils.getElementPosition(opts.$container[0]);
-      if (opts.container === 'body' && $(window).height() > win_rect.height) {
-        win_rect.height = $(window).height();
-        win_rect.bottom = win_rect.height;
+      screen_height = $(window).height();
+      if (opts.container === 'body' && screen_height > win_rect.height) {
+        win_rect.height = screen_height;
+        win_rect.bottom = screen_height;
       }
       top = 0;
       left = 0;
@@ -150,16 +163,10 @@
       if (left < win_rect.left) {
         left = win_rect.left;
       }
-      $po.offset({
+      return $po.offset({
         top: top,
         left: left
       }).addClass(placement).addClass('in');
-      ao_t = top - an_t;
-      if (opts.top !== 'center') {
-        return $arrow.css({
-          top: Math.abs(ao_t) + an_h / 2
-        });
-      }
     }
   };
 
@@ -422,9 +429,14 @@
     opts.top || (opts.top = -40);
     opts.left || (opts.left = -40);
     opts.anchor = el;
-    $po = $("<div id='popover-" + id + "' class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
+    if (opts.containerTemplate != null) {
+      $po = $(opts.containerTemplate);
+    } else {
+      $po = $("<div class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
+    }
+    $po.find('.popover').attr('id', "popover-" + id);
     $backdrop = $("<div class='popover-backdrop'></div>");
-    container = opts.container === 'parent' ? $(el).parent() : $(document.body);
+    container = opts.container === 'parent' ? $(el).parent() : $(opts.container);
     opts.$container = container;
     setTimeout(function() {
       var zidx;
@@ -450,11 +462,15 @@
       if (opts.style != null) {
         $po.css(opts.style);
       }
+      if (opts.className != null) {
+        $po.addClass(opts.className);
+      }
       if (opts.binding != null) {
         $po.attr('data-bind', opts.binding);
       }
       $po.koBind(vm);
       vm.overlay_popover_element = $po[0];
+      vm.overlay_anchor_element = el;
       vm.show();
       $po.click(function(ev) {
         return ev.stopPropagation();
@@ -462,6 +478,7 @@
       $po.on('hide.overlay.popover', function() {
         vm.hide();
         vm.overlay_popover_element = null;
+        vm.overlay_anchor_element = null;
         $po.koClean().remove();
         return $backdrop.remove();
       });
@@ -596,6 +613,18 @@
     ov_opts = ov.modalOptions || ov.overlayOptions || {};
     ov.showAsModal(ov.templateID, ov_opts);
     return ov;
+  };
+
+  QS.View.displayPopover = function(el, owner, opts) {
+    var dvn, ov, ov_opts;
+    if (opts == null) {
+      opts = {};
+    }
+    dvn = this.name + "-" + (Date.now());
+    ov = new this(dvn, owner, opts.model, opts);
+    ov.load(opts);
+    ov_opts = $.extend({}, ov.popoverOptions || {}, opts.popoverOptions || {});
+    return ov.showAsPopover(el, ov.templateID, ov_opts);
   };
 
   ko.bindingHandlers.popover = {

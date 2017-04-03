@@ -10,21 +10,25 @@ Overlay.popover = (el, opts)->
 	opts.top ||= -40
 	opts.left ||= -40
 	opts.anchor = el
-	$po = $("
-		<div id='popover-#{id}' class='popover fade'>
-			<div class='arrow'></div>
-			<div class='popover-inner'>
-				<button class='close' data-bind='click : hidePopover'>&times;</button>
-				<div class='#{tmp}' data-bind=\"updateContext : {'$view': $data}, template : '#{tmp}'\"></div>
+	if opts.containerTemplate?
+		$po = $(opts.containerTemplate)
+	else
+		$po = $("
+			<div class='popover fade'>
+				<div class='arrow'></div>
+				<div class='popover-inner'>
+					<button class='close' data-bind='click : hidePopover'>&times;</button>
+					<div class='#{tmp}' data-bind=\"updateContext : {'$view': $data}, template : '#{tmp}'\"></div>
+				</div>
 			</div>
-		</div>
-	")
+		")
+	$po.attr('id', "popover-#{id}")
 	$backdrop = $("<div class='popover-backdrop'></div>")
 
 	container = if opts.container == 'parent'
 		$(el).parent()
 	else
-		$(document.body)
+		$(opts.container)
 	opts.$container = container
 	setTimeout ->
 		zidx = Overlay.utils.availableZIndex(el)
@@ -36,15 +40,18 @@ Overlay.popover = (el, opts)->
 			$backdrop.prependTo(document.body)
 			opts.$backdrop = $backdrop
 		$po.css(opts.style) if opts.style?
+		$po.addClass(opts.className) if opts.className?
 		$po.attr('data-bind', opts.binding) if opts.binding?
 		$po.koBind(vm)
 		vm.overlay_popover_element = $po[0]
+		vm.overlay_anchor_element = el
 		vm.show()
 		$po.click (ev)->
 			ev.stopPropagation()
 		$po.on 'hide.overlay.popover', ->
 			vm.hide()
 			vm.overlay_popover_element = null
+			vm.overlay_anchor_element = null
 			$po.koClean().remove()
 			$backdrop.remove()
 		$po.on 'reposition.overlay.popover', ->
