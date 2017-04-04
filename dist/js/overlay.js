@@ -71,11 +71,13 @@
       }
       return ret;
     },
+    lastGlobalZIndex: 2000,
     availableZIndex: function(el) {
-      var idx, vals;
+      var ret, vals;
       if (el == null) {
-        idx = $('.modal.in, .popover').length;
-        return 2000 + (idx * 10);
+        ret = Overlay.utils.lastGlobalZIndex;
+        Overlay.utils.lastGlobalZIndex += 10;
+        return ret;
       } else {
         vals = $(el).parents().map(function() {
           var val;
@@ -434,13 +436,13 @@
     } else {
       $po = $("<div class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
     }
-    $po.find('.popover').attr('id', "popover-" + id);
+    $po.attr('id', "popover-" + id);
     $backdrop = $("<div class='popover-backdrop'></div>");
     container = opts.container === 'parent' ? $(el).parent() : $(opts.container);
     opts.$container = container;
     setTimeout(function() {
       var zidx;
-      zidx = Overlay.utils.availableZIndex(el);
+      zidx = Overlay.utils.availableZIndex();
       $po.remove().css({
         top: 0,
         left: 0,
@@ -573,8 +575,15 @@
     return Overlay.popover(el, opts);
   };
 
-  QS.View.prototype.repositionPopover = function() {
-    return $(this.overlay_popover_element).trigger('reposition.overlay.popover');
+  QS.View.prototype.repositionPopover = function(anchor) {
+    var $el, opts;
+    $el = $(this.overlay_popover_element);
+    if (anchor != null) {
+      opts = $el.data('overlay.popover');
+      opts.anchor = anchor;
+      this.overlay_anchor_element = anchor;
+    }
+    return $el.trigger('reposition.overlay.popover');
   };
 
   QS.View.prototype.hideOverlay = function() {

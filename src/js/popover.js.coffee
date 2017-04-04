@@ -31,7 +31,7 @@ Overlay.popover = (el, opts)->
 		$(opts.container)
 	opts.$container = container
 	setTimeout ->
-		zidx = Overlay.utils.availableZIndex(el)
+		zidx = Overlay.utils.availableZIndex()
 		$po.remove().css({ top: 0, left: 0, display: 'block', width: opts.width, height: opts.height, 'z-index': zidx }).prependTo(container)
 		if opts.backdrop
 			$backdrop.css({'z-index': zidx-1})

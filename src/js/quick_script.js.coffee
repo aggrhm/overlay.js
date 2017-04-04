@@ -11,8 +11,14 @@ QS.View::showAsPopover = (el, tmp, opts)->
 	opts.view = this
 	opts.template = tmp
 	Overlay.popover(el, opts)
-QS.View::repositionPopover = ->
-	$(@overlay_popover_element).trigger 'reposition.overlay.popover'
+QS.View::repositionPopover = (anchor)->
+	$el = $(@overlay_popover_element)
+	if anchor?
+		# update popover anchor
+		opts = $el.data('overlay.popover')
+		opts.anchor = anchor
+		@overlay_anchor_element = anchor
+	$el.trigger 'reposition.overlay.popover'
 QS.View::hideOverlay = ->
 	@hideModal()
 	@hidePopover()

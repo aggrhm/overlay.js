@@ -42,10 +42,14 @@ Overlay.utils = {
 			ret.right = ret.left + ret.width
 			ret.bottom = ret.top + ret.height
 		return ret
+	lastGlobalZIndex : 2000
 	availableZIndex : (el)->
 		if !el?
-			idx = $('.modal.in, .popover').length
-			return 2000 + (idx * 10)
+			#idx = $('.modal.in, .popover').length
+			#return 2000 + (idx * 10)
+			ret = Overlay.utils.lastGlobalZIndex
+			Overlay.utils.lastGlobalZIndex += 10
+			return ret
 		else
 			# determine largest z-index of parents
 			vals = $(el).parents().map ->
