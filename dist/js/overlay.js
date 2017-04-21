@@ -176,19 +176,24 @@
 
 (function() {
   Overlay.modal = function(opts) {
-    var $modal_dialog, $modal_el, close_btn_html, cls, css_opts, id, modal_tpl, template, tmp, vm;
+    var $modal_dialog, $modal_el, add_close, close_btn_html, cls, css_opts, id, modal_tpl, template, tmp, vm;
     vm = opts.view;
     tmp = opts.template;
     css_opts = opts.style || {};
     cls = opts.className || '';
     id = vm.name;
     template = tmp;
-    close_btn_html = opts.close_button_content || Overlay.templates.modal_close_button_content;
+    add_close = opts.showCloseButton !== false;
+    close_btn_html = opts.close_button_content || opts.closeButtonContent || Overlay.templates.modal_close_button_content || Overlay.templates.modalCloseButtonContent;
     $('#overlay-' + id).remove();
     if (opts.containerTemplate != null) {
       modal_tpl = opts.containerTemplate;
     } else {
-      modal_tpl = "<div class='modal fade'><div class='modal-dialog'><div class='modal-content'><button class='close' data-bind='click : hideOverlay'>" + close_btn_html + "</button><div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
+      modal_tpl = "<div class='modal fade'><div class='modal-dialog'><div class='modal-content'>";
+      if (add_close) {
+        modal_tpl += "<button class='modal-default-close close' data-bind='click : hideOverlay'>" + close_btn_html + "</button>";
+      }
+      modal_tpl += "<div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
     }
     $modal_el = $(modal_tpl).appendTo('body');
     $modal_dialog = $modal_el.find('.modal-dialog');
