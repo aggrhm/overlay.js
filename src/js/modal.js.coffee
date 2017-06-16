@@ -117,7 +117,7 @@ Overlay.alert = (msg, opts) ->
 				<div class='modal-dialog'>
 					<div class='modal-content'>
 						<div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div>
-						<div class='modal-body' style='font-size: 20px;' data-bind='text : message'></div>
+						<div class='modal-body' data-bind='text : message'></div>
 						<div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div>
 					</div>
 				</div>
