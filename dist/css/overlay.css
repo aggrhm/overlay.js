@@ -144,7 +144,9 @@
     transform: rotate(360deg); } }
 
 #overlay-confirm .modal-dialog {
-  width: 400px; }
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto; }
 
 #overlay-confirm .modal-header h4 {
   font-weight: bold; }
