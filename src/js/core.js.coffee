@@ -94,32 +94,28 @@ Overlay.utils = {
 					left = an_l + an_w / 2 - po_w / 2
 				when 'left'
 					left = an_l - po_w
-					if opts.top == 'center'
-						top = an_t + an_h / 2 - po_h / 2
-					else
+					if opts.top?
 						top = an_t + opts.top
+					else
+						top = an_t + an_h / 2 - po_h / 2
 				when 'right'
 					left = an_l + an_w
-					if opts.top == 'center'
-						top = an_t + an_h / 2 - po_h / 2
-					else
+					if opts.top?
 						top = an_t + opts.top
+					else
+						top = an_t + an_h / 2 - po_h / 2
 			
 			# check metrics
-			if pl == 'right' && (left + po_w) > win_rect.right
+			if (left + po_w) > win_rect.right # too far right
 				continue
-			if pl == 'left' && (left < 0)
+			if (left < 0)	# too far left
+				continue
+			if top < win_rect.top	# too far up
+				continue
+			if (top + po_h) > win_rect.bottom	# too far down
 				continue
 			else
 				break
 			
-		# fix top
-		if top < win_rect.top
-			top = win_rect.top
-		else if top + po_h > win_rect.bottom
-			top = win_rect.bottom - po_h
-		# fix left
-		left = win_rect.left if left < win_rect.left
-		
 		$po.offset({top: top, left: left}).addClass(placement).addClass('in')
 }

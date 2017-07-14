@@ -7,8 +7,8 @@ Overlay.popover = (el, opts)->
 	opts.width ||= 'auto'
 	opts.height ||= 'auto'
 	opts.container ||= 'body'
-	opts.top ||= -40
-	opts.left ||= -40
+	opts.top ||= null
+	opts.left ||= null
 	opts.anchor = el
 	if opts.containerTemplate?
 		$po = $(opts.containerTemplate)

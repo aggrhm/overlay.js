@@ -134,36 +134,34 @@
             break;
           case 'left':
             left = an_l - po_w;
-            if (opts.top === 'center') {
-              top = an_t + an_h / 2 - po_h / 2;
-            } else {
+            if (opts.top != null) {
               top = an_t + opts.top;
+            } else {
+              top = an_t + an_h / 2 - po_h / 2;
             }
             break;
           case 'right':
             left = an_l + an_w;
-            if (opts.top === 'center') {
-              top = an_t + an_h / 2 - po_h / 2;
-            } else {
+            if (opts.top != null) {
               top = an_t + opts.top;
+            } else {
+              top = an_t + an_h / 2 - po_h / 2;
             }
         }
-        if (pl === 'right' && (left + po_w) > win_rect.right) {
+        if ((left + po_w) > win_rect.right) {
           continue;
         }
-        if (pl === 'left' && (left < 0)) {
+        if (left < 0) {
+          continue;
+        }
+        if (top < win_rect.top) {
+          continue;
+        }
+        if ((top + po_h) > win_rect.bottom) {
           continue;
         } else {
           break;
         }
-      }
-      if (top < win_rect.top) {
-        top = win_rect.top;
-      } else if (top + po_h > win_rect.bottom) {
-        top = win_rect.bottom - po_h;
-      }
-      if (left < win_rect.left) {
-        left = win_rect.left;
       }
       return $po.offset({
         top: top,
@@ -433,8 +431,8 @@
     opts.width || (opts.width = 'auto');
     opts.height || (opts.height = 'auto');
     opts.container || (opts.container = 'body');
-    opts.top || (opts.top = -40);
-    opts.left || (opts.left = -40);
+    opts.top || (opts.top = null);
+    opts.left || (opts.left = null);
     opts.anchor = el;
     if (opts.containerTemplate != null) {
       $po = $(opts.containerTemplate);
@@ -680,7 +678,7 @@
           if (opts.template_id != null) {
 
           } else {
-            etfn = opts.html === true ? 'html' : 'text';
+            etfn = (opts.html === true) ? 'html' : 'text';
             return $tip_el.find('.tooltip-inner')[etfn](content);
           }
         };
