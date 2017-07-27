@@ -34,6 +34,7 @@ Overlay.modal = (opts) ->
 				setTimeout ->
 					$modal_el.koClean()
 					$modal_el.remove()
+					Overlay.dispatchEvent("modal_hidden", {view: vm})
 				, 100
 				vm.hide()
 				vm.overlay_modal_element = null
@@ -42,6 +43,7 @@ Overlay.modal = (opts) ->
 				vm.show()
 				vm.overlay_modal_element = $modal_el[0]
 				opts.shown if opts.shown?
+				Overlay.dispatchEvent("modal_shown", {view: vm})
 			$modal_el.on 'hide.overlay.modal', (ev)->
 				$modal_el.modal('hide')
 

@@ -6,6 +6,7 @@ class @Overlay
 		#$(document).click ->
 		#Overlay.removePopovers()
 Overlay.instance = new Overlay()
+Overlay.eventListeners = {}
 Overlay.templates =
 	loading_overlay : (opts)-> "<div class='overlay-spinner-1'></div>"
 	notify : (opts)-> "<div class='message'>#{opts.message}</div>"
@@ -29,6 +30,28 @@ Overlay.hide_loading = ->
 	$overlay.fadeOut
 		complete: ->
 			$overlay.remove()
+
+Overlay.addEventListener = (ev, listener)->
+	lm = Overlay.eventListeners
+	lm[ev] ||= []
+	lm[ev].push(listener)
+
+Overlay.removeEventListener = (ev, listener)->
+	lm = Overlay.eventListeners
+	return false if !lm[ev]?
+	idx = lm[ev].indexOf(listener)
+	if idx > -1
+		lm[ev].splice(idx, 1)
+		return true
+	else
+		return false
+
+Overlay.dispatchEvent = (ev, data)->
+	lm = Overlay.eventListeners
+	return if !lm[ev]?
+	for l in lm[ev]
+		l(data)
+
 
 Overlay.utils = {
 	getElementPosition: (el)->

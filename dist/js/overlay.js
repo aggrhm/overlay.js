@@ -11,6 +11,8 @@
 
   Overlay.instance = new Overlay();
 
+  Overlay.eventListeners = {};
+
   Overlay.templates = {
     loading_overlay: function(opts) {
       return "<div class='overlay-spinner-1'></div>";
@@ -47,6 +49,43 @@
         return $overlay.remove();
       }
     });
+  };
+
+  Overlay.addEventListener = function(ev, listener) {
+    var lm;
+    lm = Overlay.eventListeners;
+    lm[ev] || (lm[ev] = []);
+    return lm[ev].push(listener);
+  };
+
+  Overlay.removeEventListener = function(ev, listener) {
+    var idx, lm;
+    lm = Overlay.eventListeners;
+    if (lm[ev] == null) {
+      return false;
+    }
+    idx = lm[ev].indexOf(listener);
+    if (idx > -1) {
+      lm[ev].splice(idx, 1);
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  Overlay.dispatchEvent = function(ev, data) {
+    var i, l, len, lm, ref, results;
+    lm = Overlay.eventListeners;
+    if (lm[ev] == null) {
+      return;
+    }
+    ref = lm[ev];
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      l = ref[i];
+      results.push(l(data));
+    }
+    return results;
   };
 
   Overlay.utils = {
@@ -218,7 +257,10 @@
         console.log('Hiding overlay.');
         setTimeout(function() {
           $modal_el.koClean();
-          return $modal_el.remove();
+          $modal_el.remove();
+          return Overlay.dispatchEvent("modal_hidden", {
+            view: vm
+          });
         }, 100);
         vm.hide();
         return vm.overlay_modal_element = null;
@@ -230,8 +272,11 @@
         vm.show();
         vm.overlay_modal_element = $modal_el[0];
         if (opts.shown != null) {
-          return opts.shown;
+          opts.shown;
         }
+        return Overlay.dispatchEvent("modal_shown", {
+          view: vm
+        });
       });
       $modal_el.on('hide.overlay.modal', function(ev) {
         return $modal_el.modal('hide');
