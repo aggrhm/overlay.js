@@ -467,48 +467,45 @@
 
 (function() {
   Overlay.popover = function(el, opts) {
-    var $backdrop, $po, container, id, tmp, vm;
+    var $arrow, $po, add_close, container, id, po, popover_element, tmp, vm;
     vm = opts.view;
     tmp = opts.template;
     id = vm.name;
-    opts.placement || (opts.placement = 'right');
-    opts.title || (opts.title = 'Options');
+    opts.placement || (opts.placement = 'bottom');
     opts.width || (opts.width = 'auto');
     opts.height || (opts.height = 'auto');
     opts.container || (opts.container = 'body');
-    opts.top || (opts.top = null);
-    opts.left || (opts.left = null);
-    opts.anchor = el;
-    if (opts.containerTemplate != null) {
-      $po = $(opts.containerTemplate);
-    } else {
-      $po = $("<div class='popover fade'> <div class='arrow'></div> <div class='popover-inner'> <button class='close' data-bind='click : hidePopover'>&times;</button> <div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div> </div> </div>");
+    if (opts.closeOnOutsideClick == null) {
+      opts.closeOnOutsideClick = true;
     }
+    opts.preventOutsideClick || (opts.preventOutsideClick = false);
+    opts.popperOptions || (opts.popperOptions = {});
+    opts.anchor = el;
+    add_close = opts.showCloseButton !== false;
+    if (opts.containerTemplate != null) {
+      po = opts.containerTemplate;
+    } else {
+      po = "<div class='popover popper'>";
+      if (add_close) {
+        po += "<button class='close' data-bind='click : hidePopover'>&times;</button>";
+      }
+      po += "<div class='popover-arrow popper__arrow' x-arrow></div>";
+      po += "<div class='popover-inner'><div class='" + tmp + "' data-bind=\"updateContext : {'$view': $data}, template : '" + tmp + "'\"></div></div>";
+      po += "</div>";
+    }
+    $po = $(po);
+    $arrow = $po.find('.popover-arrow');
+    opts.popover_element = popover_element = $po[0];
     $po.attr('id', "popover-" + id);
-    $backdrop = $("<div class='popover-backdrop'></div>");
     container = opts.container === 'parent' ? $(el).parent() : $(opts.container);
     opts.$container = container;
     setTimeout(function() {
-      var zidx;
-      zidx = Overlay.utils.availableZIndex();
+      var outside_click_fn, popts;
       $po.remove().css({
-        top: 0,
-        left: 0,
         display: 'block',
         width: opts.width,
-        height: opts.height,
-        'z-index': zidx
+        height: opts.height
       }).prependTo(container);
-      if (opts.backdrop) {
-        $backdrop.css({
-          'z-index': zidx - 1
-        });
-        $backdrop.click(function() {
-          return $po.trigger('hide.overlay.popover');
-        });
-        $backdrop.prependTo(document.body);
-        opts.$backdrop = $backdrop;
-      }
       if (opts.style != null) {
         $po.css(opts.style);
       }
@@ -519,25 +516,43 @@
         $po.attr('data-bind', opts.binding);
       }
       $po.koBind(vm);
-      vm.overlay_popover_element = $po[0];
-      vm.overlay_anchor_element = el;
-      vm.show();
-      $po.click(function(ev) {
-        return ev.stopPropagation();
-      });
+      outside_click_fn = function(ev) {
+        var $target;
+        $target = $(ev.target);
+        if (ev.target !== popover_element && !popover_element.contains(ev.target)) {
+          if (opts.closeOnOutsideClick === true) {
+            $po.trigger('hide.overlay.popover');
+          }
+          if (opts.preventOutsideClick === true) {
+            return typeof ev.stopPropagation === "function" ? ev.stopPropagation() : void 0;
+          }
+        }
+      };
       $po.on('hide.overlay.popover', function() {
+        var popper;
         vm.hide();
+        popper = vm.overlay_popover_options.popper;
+        popper.destroy();
         vm.overlay_popover_element = null;
-        vm.overlay_anchor_element = null;
+        vm.overlay_popover_options = null;
         $po.koClean().remove();
-        return $backdrop.remove();
+        return $(document).off('mousedown touchstart', outside_click_fn);
       });
-      $po.on('reposition.overlay.popover', function() {
-        return Overlay.utils.positionPopover($po);
-      });
-      $po.data('overlay.popover', opts);
-      return Overlay.utils.positionPopover($po);
-    }, 100);
+      popts = {
+        placement: opts.placement,
+        removeOnDestroy: false,
+        onCreate: function() {
+          vm.overlay_popover_element = opts.popover_element;
+          vm.overlay_popover_options = opts;
+          if (opts.closeOnOutsideClick === true) {
+            $(document).on('mousedown touchstart', outside_click_fn);
+          }
+          return vm.show();
+        }
+      };
+      $.extend(popts, opts.popperOptions);
+      return opts.popper = new Popper(el, opts.popover_element, popts);
+    }, 50);
     return $po[0];
   };
 
@@ -551,10 +566,6 @@
     return $('.popover').each(function() {
       return $(this).trigger('hide.overlay.popover');
     });
-  };
-
-  Overlay.repositionPopover = function(id) {
-    return Overlay.utils.positionPopover($("#popover-" + id));
   };
 
 }).call(this);
@@ -607,31 +618,34 @@
 }).call(this);
 
 (function() {
-  QS.View.prototype.showAsModal = function(tmp, opts) {
-    opts || (opts = {});
+  QS.View.prototype.showAsModal = function(popts) {
+    var opts;
+    if (popts == null) {
+      popts = {};
+    }
+    if (this.is_visible()) {
+      return;
+    }
+    opts = $.extend({}, this.modalOptions || {}, popts || {});
     opts.view = this;
-    opts.template = tmp;
+    opts.template || (opts.template = this.templateID);
     return Overlay.modal(opts);
   };
 
   QS.View.prototype.showAsOverlay = QS.View.prototype.showAsModal;
 
-  QS.View.prototype.showAsPopover = function(el, tmp, opts) {
-    opts || (opts = {});
-    opts.view = this;
-    opts.template = tmp;
-    return Overlay.popover(el, opts);
-  };
-
-  QS.View.prototype.repositionPopover = function(anchor) {
-    var $el, opts;
-    $el = $(this.overlay_popover_element);
-    if (anchor != null) {
-      opts = $el.data('overlay.popover');
-      opts.anchor = anchor;
-      this.overlay_anchor_element = anchor;
+  QS.View.prototype.showAsPopover = function(el, popts) {
+    var opts;
+    if (popts == null) {
+      popts = {};
     }
-    return $el.trigger('reposition.overlay.popover');
+    if (this.is_visible()) {
+      return;
+    }
+    opts = $.extend({}, this.popoverOptions || {}, popts || {});
+    opts.view = this;
+    opts.template || (opts.template = this.templateID);
+    return Overlay.popover(el, opts);
   };
 
   QS.View.prototype.hideOverlay = function() {
@@ -660,28 +674,26 @@
   };
 
   QS.View.displayModal = function(owner, opts) {
-    var dvn, ov, ov_opts;
+    var dvn, ov;
     if (opts == null) {
       opts = {};
     }
     dvn = this.name + "-" + (Date.now());
     ov = new this(dvn, owner, opts.model, opts);
     ov.load(opts);
-    ov_opts = ov.modalOptions || ov.overlayOptions || {};
-    ov.showAsModal(ov.templateID, ov_opts);
+    ov.showAsModal(opts.modalOptions || {});
     return ov;
   };
 
   QS.View.displayPopover = function(el, owner, opts) {
-    var dvn, ov, ov_opts;
+    var dvn, ov;
     if (opts == null) {
       opts = {};
     }
     dvn = this.name + "-" + (Date.now());
     ov = new this(dvn, owner, opts.model, opts);
     ov.load(opts);
-    ov_opts = $.extend({}, ov.popoverOptions || {}, opts.popoverOptions || {});
-    return ov.showAsPopover(el, ov.templateID, ov_opts);
+    return ov.showAsPopover(el, opts.popoverOptions || {});
   };
 
   ko.bindingHandlers.popover = {

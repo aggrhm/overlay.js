@@ -24,6 +24,7 @@ gulp.task('js', function() {
 gulp.task('css', function() {
 	return gulp.src([
 			'./src/css/core.css.sass',
+			'./src/css/popper.css',
 		])
 		.pipe(sass())
 		.pipe(concat('overlay.css'))
