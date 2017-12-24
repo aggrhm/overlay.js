@@ -230,7 +230,7 @@
       if (add_close) {
         modal_tpl += "<button class='modal-default-close close' data-bind='click : hideOverlay'>" + close_btn_html + "</button>";
       }
-      modal_tpl += "<div class='" + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
+      modal_tpl += "<div class='modal-content-body " + template + "' data-bind=\"updateContext : {'$view': $data}, template: '" + template + "'\"></div></div></div></div>";
     }
     $modal_el = $(modal_tpl).appendTo('body');
     $modal_dialog = $modal_el.find('.modal-dialog');
