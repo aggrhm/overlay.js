@@ -209,6 +209,14 @@
     }
   };
 
+  $(document).on('shown.bs.modal hidden.bs.modal', '.modal', function(ev) {
+    return setTimeout(function() {
+      return Overlay.dispatchEvent('modal_layers_updated', {
+        count: $('.modal.in').length
+      });
+    }, 100);
+  });
+
 }).call(this);
 
 (function() {
