@@ -339,7 +339,7 @@
       yes_text: opts.yes_text || "Yes",
       no_text: opts.no_text || "No"
     };
-    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-default' data-bind='click : no, html : no_text'>No</button><button class='btn btn-success' data-bind='click : yes, html : yes_text'>Yes</button></div> </div> </div> </div>";
+    tmp = "<div id='overlay-confirm' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='html : message'></div> <div class='modal-footer'><button class='btn btn-default' data-bind='click : no, html : no_text'>No</button><button class='btn btn-success' data-bind='click : yes, html : yes_text'>Yes</button></div> </div> </div> </div>";
     $modal = $('#overlay-confirm');
     if ($modal.length === 0) {
       $modal = $(tmp);
@@ -369,7 +369,7 @@
         }
       }
     };
-    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='text : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
+    tmp = "<div id='overlay-alert' class='modal fade'> <div class='modal-dialog'> <div class='modal-content'> <div class='modal-header'><h4 class='modal-title' data-bind='text : title'></h4></div> <div class='modal-body' data-bind='html : message'></div> <div class='modal-footer'><button class='btn btn-primary' data-bind='click : ok'>OK</button></div> </div> </div> </div>";
     $modal = $('#overlay-alert');
     if ($modal.length === 0) {
       $modal = $(tmp);
