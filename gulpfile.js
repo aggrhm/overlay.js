@@ -3,10 +3,6 @@ var concat = require('gulp-concat');
 var coffee = require('gulp-coffee');
 var sass = require('gulp-sass');
 
-gulp.task('default', ['build']);
-
-gulp.task('build', ['js', 'css']);
-
 gulp.task('js', function() {
 	return gulp.src([
 			'./src/js/core.js.coffee',
@@ -35,4 +31,8 @@ gulp.task('watch', function() {
 	gulp.watch('src/js/**/*', ['js']);
 	gulp.watch('src/css/**/*', ['css']);
 });
+
+gulp.task('build', gulp.series('js', 'css'));
+
+gulp.task('default', gulp.series('build'));
 

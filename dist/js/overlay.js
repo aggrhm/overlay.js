@@ -612,13 +612,15 @@
     }
   };
 
-  $(document).on('hidden.bs.modal', '.modal', function() {
+  $(document).on('hidden.bs.modal shown.bs.modal', '.modal', function() {
     return setTimeout(function() {
       if (!Overlay.utils.isModalOpen()) {
-        return $(document.body).removeClass('modal-open');
+        $(document.body).removeClass('modal-open');
+        return $(document.body).removeClass('overlay-modal-open');
       } else {
         QS.log('adding modal class back');
-        return $(document.body).addClass('modal-open');
+        $(document.body).addClass('modal-open');
+        return $(document.body).addClass('overlay-modal-open');
       }
     }, 50);
   });

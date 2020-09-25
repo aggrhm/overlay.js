@@ -25,11 +25,13 @@ Modal.prototype.show = (_relatedTarget)->
 			, 10
 
 # fix body css class
-$(document).on 'hidden.bs.modal', '.modal', ->
+$(document).on 'hidden.bs.modal shown.bs.modal', '.modal', ->
 	setTimeout ->
 		if !Overlay.utils.isModalOpen()
 			$(document.body).removeClass 'modal-open'
+			$(document.body).removeClass 'overlay-modal-open'
 		else
 			QS.log 'adding modal class back'
 			$(document.body).addClass 'modal-open'
+			$(document.body).addClass 'overlay-modal-open'
 	, 50
